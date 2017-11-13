@@ -4,13 +4,12 @@
 // Author: alex@kidtsunami.com
 //
 
-package trimmer
+package trimmer // import "trimmer.io/go-trimmer"
 
 import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"trimmer.io/go-trimmer/hash"
 	"io"
 	"log"
 	"net/http"
@@ -18,6 +17,7 @@ import (
 	"os"
 	"strings"
 	"time"
+	"trimmer.io/go-trimmer/hash"
 )
 
 // ---------------------------------------------------------------------------
