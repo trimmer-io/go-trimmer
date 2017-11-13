@@ -1,0 +1,608 @@
+// Trimmer SDK
+//
+// Copyright (c) 2016-2017 KIDTSUNAMI
+// Author: alex@kidtsunami.com
+//
+
+// Package asset provides the /assets APIs
+package asset
+
+import (
+	"bytes"
+	"context"
+	"fmt"
+	"io"
+	"net/url"
+	"strconv"
+	"strings"
+
+	trimmer "trimmer.io/go-trimmer"
+	"trimmer.io/go-trimmer/link"
+	"trimmer.io/go-trimmer/media"
+	"trimmer.io/go-trimmer/meta"
+	"trimmer.io/go-trimmer/tag"
+)
+
+// Client is used to invoke /users APIs.
+type Client struct {
+	B    trimmer.Backend
+	Key  trimmer.ApiKey
+	Sess *trimmer.Session
+}
+
+func getC() Client {
+	return Client{trimmer.GetBackend(trimmer.APIBackend), trimmer.Key, &trimmer.LoginSession}
+}
+
+// Iter is an iterator for lists of Assets.
+// The embedded Iter carries methods with it;
+// see its documentation for details.
+type Iter struct {
+	*trimmer.Iter
+}
+
+// Asset returns the most recent Asset visited by a call to Next.
+func (i *Iter) Asset() *trimmer.Asset {
+	return i.Current().(*trimmer.Asset)
+}
+
+func Get(ctx context.Context, assetId string, params *trimmer.AssetParams) (*trimmer.Asset, error) {
+	return getC().Get(ctx, assetId, params)
+}
+
+func Update(ctx context.Context, assetId string, params *trimmer.MetaUpdateParams) (*trimmer.MetaVersion, error) {
+	return getC().Update(ctx, assetId, params)
+}
+
+func Delete(ctx context.Context, assetId string) error {
+	return getC().Delete(ctx, assetId)
+}
+
+func Fork(ctx context.Context, assetId string, params *trimmer.AssetForkParams) (*trimmer.Asset, error) {
+	return getC().Fork(ctx, assetId, params)
+}
+
+func Trash(ctx context.Context, assetId string) (*trimmer.Asset, error) {
+	return getC().Trash(ctx, assetId)
+}
+
+func Undelete(ctx context.Context, assetId string) (*trimmer.Asset, error) {
+	return getC().Undelete(ctx, assetId)
+}
+
+func GetVersion(ctx context.Context, assetId string, params *trimmer.MetaQueryParams) (*trimmer.MetaVersion, error) {
+	return getC().GetVersion(ctx, assetId, params)
+}
+
+func DiffVersions(ctx context.Context, assetId string, params *trimmer.MetaDiffParams) ([]byte, error) {
+	return getC().DiffVersions(ctx, assetId, params)
+}
+
+func ListVersions(ctx context.Context, assetId string, params *trimmer.MetaListParams) *meta.Iter {
+	return getC().ListVersions(ctx, assetId, params)
+}
+
+func ListLinks(ctx context.Context, assetId string, params *trimmer.LinkListParams) *link.Iter {
+	return getC().ListLinks(ctx, assetId, params)
+}
+
+func ListTags(ctx context.Context, assetId string, params *trimmer.TagListParams) *tag.Iter {
+	return getC().ListTags(ctx, assetId, params)
+}
+
+func NewTag(ctx context.Context, assetId string, params *trimmer.TagParams) (*trimmer.Tag, error) {
+	return getC().NewTag(ctx, assetId, params)
+}
+
+func ListMedia(ctx context.Context, assetId string, params *trimmer.MediaListParams) *media.Iter {
+	return getC().ListMedia(ctx, assetId, params)
+}
+
+func NewMedia(ctx context.Context, assetId string, params *trimmer.MediaParams) (*trimmer.Media, error) {
+	return getC().NewMedia(ctx, assetId, params)
+}
+
+func NewUpload(ctx context.Context, assetId string, params *trimmer.MediaParams) (*trimmer.Media, error) {
+	return getC().NewUpload(ctx, assetId, params)
+}
+
+func UploadMedia(ctx context.Context, assetId string, params *trimmer.MediaParams, src io.ReadSeeker) (*trimmer.Media, error) {
+	return getC().UploadMedia(ctx, assetId, params, src)
+}
+
+func DeleteMedia(ctx context.Context, assetId, mediaId string) error {
+	return getC().DeleteMedia(ctx, assetId, mediaId)
+}
+
+func Analyze(ctx context.Context, assetId string, params *trimmer.AssetAnalyzeParams) (*trimmer.Job, error) {
+	return getC().Analyze(ctx, assetId, params)
+}
+
+func Snapshot(ctx context.Context, assetId string, params *trimmer.AssetSnapshotParams) (*trimmer.Job, error) {
+	return getC().Snapshot(ctx, assetId, params)
+}
+
+func Transcode(ctx context.Context, assetId string, params *trimmer.AssetTranscodeParams) (*trimmer.Job, error) {
+	return getC().Transcode(ctx, assetId, params)
+}
+
+func Trim(ctx context.Context, assetId string, params *trimmer.AssetTrimParams) (*trimmer.Media, error) {
+	return getC().Trim(ctx, assetId, params)
+}
+
+func (c Client) Get(ctx context.Context, assetId string, params *trimmer.AssetParams) (*trimmer.Asset, error) {
+	if assetId == "" {
+		return nil, trimmer.EIDMissing
+	}
+	u := fmt.Sprintf("/assets/%v", assetId)
+	if params != nil && params.Embed.IsValid() {
+		q := &url.Values{}
+		q.Add("embed", params.Embed.String())
+		u += fmt.Sprintf("?%v", q.Encode())
+	}
+	v := &trimmer.Asset{}
+	err := c.B.Call(ctx, "GET", u, c.Key, c.Sess, nil, nil, v)
+	return v, err
+}
+
+func (c Client) Update(ctx context.Context, assetId string, params *trimmer.MetaUpdateParams) (*trimmer.MetaVersion, error) {
+	if assetId == "" {
+		return nil, trimmer.EIDMissing
+	}
+	if params == nil {
+		return nil, trimmer.ENilPointer
+	}
+	v := &trimmer.MetaVersion{}
+	err := c.B.Call(ctx, "PATCH", fmt.Sprintf("/assets/%v/meta", assetId), c.Key, c.Sess, nil, params, v)
+	return v, err
+}
+
+func (c Client) Delete(ctx context.Context, assetId string) error {
+	if assetId == "" {
+		return trimmer.EIDMissing
+	}
+	err := c.B.Call(ctx, "DELETE", fmt.Sprintf("/assets/%v", assetId), c.Key, c.Sess, nil, nil, nil)
+	return err
+}
+
+func (c Client) Fork(ctx context.Context, assetId string, params *trimmer.AssetForkParams) (*trimmer.Asset, error) {
+	if assetId == "" {
+		return nil, trimmer.EIDMissing
+	}
+	if params == nil {
+		return nil, trimmer.ENilPointer
+	}
+	v := &trimmer.Asset{}
+	err := c.B.Call(ctx, "POST", fmt.Sprintf("/assets/%v/fork", assetId), c.Key, c.Sess, nil, params, v)
+	return v, err
+}
+
+func (c Client) Trash(ctx context.Context, assetId string) (*trimmer.Asset, error) {
+	if assetId == "" {
+		return nil, trimmer.EIDMissing
+	}
+	v := &trimmer.Asset{}
+	err := c.B.Call(ctx, "POST", fmt.Sprintf("/assets/%v/trash", assetId), c.Key, c.Sess, nil, nil, v)
+	return v, err
+}
+
+func (c Client) Undelete(ctx context.Context, assetId string) (*trimmer.Asset, error) {
+	if assetId == "" {
+		return nil, trimmer.EIDMissing
+	}
+	v := &trimmer.Asset{}
+	err := c.B.Call(ctx, "POST", fmt.Sprintf("/assets/%v/undelete", assetId), c.Key, c.Sess, nil, nil, v)
+	return v, err
+}
+
+func (c Client) ListLinks(ctx context.Context, assetId string, params *trimmer.LinkListParams) *link.Iter {
+	if assetId == "" {
+		return &link.Iter{trimmer.GetIterErr(trimmer.EIDMissing)}
+	}
+
+	type linkList struct {
+		trimmer.ListMeta
+		Values trimmer.LinkList `json:"links"`
+	}
+
+	var q *url.Values
+	var lp *trimmer.ListParams
+	if params != nil {
+		q = &url.Values{}
+
+		if params.StashId != "" {
+			q.Add("stashId", params.StashId)
+		}
+		if params.AuthorId != "" {
+			q.Add("authorId", params.AuthorId)
+		}
+		if params.Embed.IsValid() {
+			q.Add("embed", params.Embed.String())
+		}
+
+		params.AppendTo(q)
+		lp = &params.ListParams
+	}
+
+	return &link.Iter{trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
+		list := &linkList{}
+		err := c.B.Call(ctx, "GET", fmt.Sprintf("/assets/%v/links?%v", assetId, b.Encode()), c.Key, c.Sess, nil, nil, list)
+		ret := make([]interface{}, len(list.Values))
+
+		// pass concrete values as abstract interface into iterator
+		for i, v := range list.Values {
+			ret[i] = v
+		}
+
+		return ret, list.ListMeta, err
+	})}
+}
+
+func (c Client) ListTags(ctx context.Context, assetId string, params *trimmer.TagListParams) *tag.Iter {
+
+	if assetId == "" {
+		return &tag.Iter{trimmer.GetIterErr(trimmer.EIDMissing)}
+	}
+
+	type tagList struct {
+		trimmer.ListMeta
+		Values trimmer.TagList `json:"tags"`
+	}
+
+	var q *url.Values
+	var lp *trimmer.ListParams
+	if params != nil {
+		q = &url.Values{}
+
+		if len(params.IDs) > 0 {
+			q.Add("id", strings.Join(params.IDs, ","))
+		}
+		if params.AuthorId != "" {
+			q.Add("authorId", params.AuthorId)
+		}
+		if params.AccessClass != "" {
+			q.Add("access", string(params.AccessClass))
+		}
+		if len(params.Labels) > 0 {
+			q.Add("label", params.Labels.String())
+		}
+		if params.From > 0 {
+			q.Add("from", strconv.FormatInt(params.From, 10))
+		}
+		if params.To > 0 {
+			q.Add("to", strconv.FormatInt(params.To, 10))
+		}
+		if params.Embed.IsValid() {
+			q.Add("embed", params.Embed.String())
+		}
+
+		params.AppendTo(q)
+		lp = &params.ListParams
+	}
+
+	return &tag.Iter{trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
+		list := &tagList{}
+		err := c.B.Call(ctx, "GET", fmt.Sprintf("/assets/%v/tags?%v", assetId, b.Encode()), c.Key, c.Sess, nil, nil, list)
+		ret := make([]interface{}, len(list.Values))
+
+		// pass concrete values as abstract interface into iterator
+		for i, v := range list.Values {
+			ret[i] = v
+		}
+
+		return ret, list.ListMeta, err
+	})}
+}
+
+func (c Client) NewTag(ctx context.Context, assetId string, params *trimmer.TagParams) (*trimmer.Tag, error) {
+	if assetId == "" {
+		return nil, trimmer.EIDMissing
+	}
+	if params == nil {
+		return nil, trimmer.ENilPointer
+	}
+	v := &trimmer.Tag{}
+	err := c.B.Call(ctx, "POST", fmt.Sprintf("/assets/%v/tags", assetId), c.Key, c.Sess, nil, params, v)
+	return v, err
+}
+
+func (c Client) ListMedia(ctx context.Context, assetId string, params *trimmer.MediaListParams) *media.Iter {
+	if assetId == "" {
+		return &media.Iter{Iter: trimmer.GetIterErr(trimmer.EIDMissing)}
+	}
+
+	type mediaList struct {
+		trimmer.ListMeta
+		Values trimmer.MediaList `json:"media"`
+	}
+
+	var q *url.Values
+	var lp *trimmer.ListParams
+	if params != nil {
+		q = &url.Values{}
+
+		if len(params.States) > 0 {
+			q.Add("state", params.States.String())
+		}
+		if params.Kind != "" {
+			q.Add("kind", string(params.Kind))
+		}
+		if len(params.Types) > 0 {
+			q.Add("type", params.Types.String())
+		}
+		if len(params.Formats) > 0 {
+			q.Add("format", params.Formats.String())
+		}
+		if len(params.Families) > 0 {
+			q.Add("family", params.Families.String())
+		}
+		if len(params.Roles) > 0 {
+			q.Add("role", params.Roles.String())
+		}
+		if len(params.Relations) > 0 {
+			q.Add("relation", params.Relations.String())
+		}
+		if !trimmer.IsNilUUID(params.UUID) {
+			q.Add("uuid", params.UUID)
+		}
+		if params.Embed.IsValid() {
+			q.Add("embed", params.Embed.String())
+		}
+
+		params.AppendTo(q)
+		lp = &params.ListParams
+	}
+
+	return &media.Iter{Iter: trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
+		list := &mediaList{}
+		err := c.B.Call(ctx, "GET", fmt.Sprintf("/assets/%v/media?%v", assetId, b.Encode()), c.Key, c.Sess, nil, nil, list)
+		ret := make([]interface{}, len(list.Values))
+
+		// pass concrete values as abstract interface into iterator
+		for i, v := range list.Values {
+			ret[i] = v
+		}
+
+		return ret, list.ListMeta, err
+	})}
+}
+
+func (c Client) NewMedia(ctx context.Context, assetId string, params *trimmer.MediaParams) (*trimmer.Media, error) {
+	if assetId == "" {
+		return nil, trimmer.EIDMissing
+	}
+	if params == nil {
+		return nil, trimmer.ENilPointer
+	}
+	v := &trimmer.Media{}
+	media.StripMetadataUrls(params.Attr)
+	err := c.B.Call(ctx, "POST", fmt.Sprintf("/assets/%v/media", assetId), c.Key, c.Sess, nil, params, v)
+	return v, err
+}
+
+func (c Client) GetVersion(ctx context.Context, assetId string, params *trimmer.MetaQueryParams) (*trimmer.MetaVersion, error) {
+	if assetId == "" {
+		return nil, trimmer.EIDMissing
+	}
+	var u string
+	if params != nil {
+		version := "head"
+		if params.Version != "" {
+			version = params.Version
+		}
+		q := &url.Values{}
+		if params.Filter != "" {
+			q.Add("filter", params.Filter)
+		}
+		if params.Embed.IsValid() {
+			q.Add("embed", params.Embed.String())
+		}
+		if len(*q) > 0 {
+			u = fmt.Sprintf("/assets/%v/meta/%v?%s", assetId, version, q.Encode())
+		} else {
+			u = fmt.Sprintf("/assets/%v/meta/%v", assetId, version)
+		}
+	} else {
+		u = fmt.Sprintf("/assets/%v/meta/head", assetId)
+	}
+	v := &trimmer.MetaVersion{}
+	err := c.B.Call(ctx, "GET", u, c.Key, c.Sess, nil, nil, v)
+	return v, err
+}
+
+func (c Client) ListVersions(ctx context.Context, assetId string, params *trimmer.MetaListParams) *meta.Iter {
+	if assetId == "" {
+		return &meta.Iter{trimmer.GetIterErr(trimmer.EIDMissing)}
+	}
+
+	type metaList struct {
+		trimmer.ListMeta
+		Values trimmer.MetaVersionList `json:"versions"`
+	}
+
+	var q *url.Values
+	var lp *trimmer.ListParams
+	if params != nil {
+		q = &url.Values{}
+
+		if params.AuthorId != "" {
+			q.Add("authorId", params.AuthorId)
+		}
+		if params.Embed.IsValid() {
+			q.Add("embed", params.Embed.String())
+		}
+
+		params.AppendTo(q)
+		lp = &params.ListParams
+	}
+
+	return &meta.Iter{trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
+		list := &metaList{}
+		err := c.B.Call(ctx, "GET", fmt.Sprintf("/assets/%v/meta?%v", assetId, b.Encode()), c.Key, c.Sess, nil, nil, list)
+		ret := make([]interface{}, len(list.Values))
+
+		// pass concrete values as abstract interface into iterator
+		for i, v := range list.Values {
+			ret[i] = v
+		}
+
+		return ret, list.ListMeta, err
+	})}
+}
+
+func (c Client) DiffVersions(ctx context.Context, assetId string, params *trimmer.MetaDiffParams) ([]byte, error) {
+	if assetId == "" {
+		return nil, trimmer.EIDMissing
+	}
+	v1 := "head"
+	v2 := "head^"
+	if params != nil {
+		if params.V1 != "" {
+			v1 = params.V1
+		}
+		if params.V2 != "" {
+			v2 = params.V2
+		}
+	}
+	var buf bytes.Buffer
+	h := &trimmer.CallHeaders{
+		Accept: "application/vnd.trimmer.diff",
+	}
+	err := c.B.Call(ctx, "GET", fmt.Sprintf("/assets/%v/meta?diff=%s:%s", assetId, v1, v2), c.Key, c.Sess, h, nil, buf)
+	return buf.Bytes(), err
+}
+
+func (c Client) NewUpload(ctx context.Context, assetId string, params *trimmer.MediaParams) (*trimmer.Media, error) {
+	if assetId == "" {
+		return nil, trimmer.EIDMissing
+	}
+	if params == nil {
+		return nil, trimmer.ENilPointer
+	}
+	v := &trimmer.Media{}
+	media.StripMetadataUrls(params.Attr)
+	err := c.B.Call(ctx, "POST", fmt.Sprintf("/assets/%v/upload", assetId), c.Key, c.Sess, nil, params, v)
+	return v, err
+}
+
+func (c Client) UploadMedia(ctx context.Context, assetId string, params *trimmer.MediaParams, src io.ReadSeeker) (*trimmer.Media, error) {
+	if assetId == "" {
+		return nil, trimmer.EIDMissing
+	}
+	if params == nil {
+		return nil, trimmer.ENilPointer
+	}
+
+	// 1 create asset media using params
+	m, err := c.NewUpload(ctx, assetId, params)
+	if err != nil {
+		return nil, err
+	}
+
+	fi := &trimmer.FileInfo{
+		Size:     m.Size,
+		Hashes:   m.Hashes,
+		Etag:     m.Hashes.Etag(),
+		Filename: m.Filename,
+		UUID:     m.UUID,
+		Mimetype: m.Mimetype,
+		Url:      m.Url,
+	}
+
+	// 2 upload file data
+	r := media.NewUploadRequest(fi, m, src)
+	fi, err = r.Do(ctx)
+	if err != nil {
+		c.DeleteMedia(ctx, assetId, m.ID)
+		return nil, err
+	}
+
+	// 3 complete asset upload (not required when callback is used)
+	if m.State == media.MediaStateUploading && !r.HasCallback() {
+		i := m.ID
+		up := &trimmer.MediaUploadCompletionParams{
+			Files: trimmer.FileInfoList{fi},
+			Embed: trimmer.API_EMBED_META | trimmer.API_EMBED_DETAILS,
+		}
+		if m, err = media.CompleteUpload(ctx, m.ID, up); err != nil {
+			c.DeleteMedia(ctx, assetId, i)
+			return nil, err
+		}
+	}
+
+	return m, err
+}
+
+func (c Client) DeleteMedia(ctx context.Context, assetId, mediaId string) error {
+	if assetId == "" || mediaId == "" {
+		return trimmer.EIDMissing
+	}
+	err := c.B.Call(ctx, "DELETE", fmt.Sprintf("/assets/%v/media/%v", assetId, mediaId), c.Key, c.Sess, nil, nil, nil)
+	return err
+}
+
+func (c Client) Analyze(ctx context.Context, assetId string, params *trimmer.AssetAnalyzeParams) (*trimmer.Job, error) {
+	if params == nil {
+		return nil, trimmer.ENilPointer
+	}
+	if assetId == "" || params.MediaId == "" {
+		return nil, trimmer.EIDMissing
+	}
+	u := fmt.Sprintf("/assets/%v/media/%v/analyze", assetId, params.MediaId)
+	if params != nil && params.Embed.IsValid() {
+		q := &url.Values{}
+		q.Add("embed", params.Embed.String())
+		u += fmt.Sprintf("?%v", q.Encode())
+	}
+	v := &trimmer.Job{}
+	err := c.B.Call(ctx, "POST", u, c.Key, c.Sess, nil, params, v)
+	return v, err
+}
+
+func (c Client) Snapshot(ctx context.Context, assetId string, params *trimmer.AssetSnapshotParams) (*trimmer.Job, error) {
+	if params == nil {
+		return nil, trimmer.ENilPointer
+	}
+	if assetId == "" || params.MediaId == "" {
+		return nil, trimmer.EIDMissing
+	}
+	u := fmt.Sprintf("/assets/%v/media/%v/snapshot", assetId, params.MediaId)
+	if params != nil && params.Embed.IsValid() {
+		q := &url.Values{}
+		q.Add("embed", params.Embed.String())
+		u += fmt.Sprintf("?%v", q.Encode())
+	}
+	v := &trimmer.Job{}
+	err := c.B.Call(ctx, "POST", u, c.Key, c.Sess, nil, params, v)
+	return v, err
+}
+
+func (c Client) Transcode(ctx context.Context, assetId string, params *trimmer.AssetTranscodeParams) (*trimmer.Job, error) {
+	if params == nil {
+		return nil, trimmer.ENilPointer
+	}
+	if assetId == "" {
+		return nil, trimmer.EIDMissing
+	}
+	v := &trimmer.Job{}
+	err := c.B.Call(ctx, "POST", fmt.Sprintf("/assets/%v/transcode", assetId), c.Key, c.Sess, nil, params, v)
+	return v, err
+}
+
+func (c Client) Trim(ctx context.Context, assetId string, params *trimmer.AssetTrimParams) (*trimmer.Media, error) {
+	if params == nil {
+		return nil, trimmer.ENilPointer
+	}
+	if assetId == "" || params.MediaId == "" {
+		return nil, trimmer.EIDMissing
+	}
+	u := fmt.Sprintf("/assets/%v/media/%v", assetId, params.MediaId)
+	if params != nil && params.Embed.IsValid() {
+		q := &url.Values{}
+		q.Add("embed", params.Embed.String())
+		u += fmt.Sprintf("?%v", q.Encode())
+	}
+	v := &trimmer.Media{}
+	err := c.B.Call(ctx, "PATCH", u, c.Key, c.Sess, nil, params, v)
+	return v, err
+}
