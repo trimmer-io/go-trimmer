@@ -549,8 +549,10 @@ type VideoAttr struct {
 	RateNum        int            `json:"rateNum,omitempty"`        // video frame rate numerator
 	RateDen        int            `json:"rateDen,omitempty"`        // video frame rate denumerator
 	Duration       time.Duration  `json:"duration,omitempty"`       // video stream runtime
-	Width          int            `json:"width,omitempty"`          // native width
-	Height         int            `json:"height,omitempty"`         // native height
+	Width          int            `json:"width"`                    // native width (may contain borders)
+	Height         int            `json:"height"`                   // native height (may contain borders)
+	ActiveWidth    int            `json:"activeWidth"`              // display width
+	ActiveHeight   int            `json:"activeHeight"`             // display height
 	Depth          int            `json:"depth,omitempty"`          // color depth 8/10/12/14/16/24 bit
 	Sar            float32        `json:"sar,omitempty"`            // sample aspect ratio
 	Dar            float32        `json:"dar,omitempty"`            // display aspect ratio
@@ -598,8 +600,10 @@ type SequenceAttr struct {
 	RateNum        int              `json:"rateNum,omitempty"`        // video frame rate numerator
 	RateDen        int              `json:"rateDen,omitempty"`        // video frame rate denumerator
 	Duration       time.Duration    `json:"duration,omitempty"`       // video stream runtime
-	Width          int              `json:"width,omitempty"`          // native width
-	Height         int              `json:"height,omitempty"`         // native height
+	Width          int              `json:"width"`                    // native width (may contain borders)
+	Height         int              `json:"height"`                   // native height (may contain borders)
+	ActiveWidth    int              `json:"activeWidth"`              // display width
+	ActiveHeight   int              `json:"activeHeight"`             // display height
 	Depth          int              `json:"depth,omitempty"`          // color depth 8/10/12/14/16/24 bit
 	Sar            float32          `json:"sar,omitempty"`            // sample aspect ratio
 	Dar            float32          `json:"dar,omitempty"`            // display aspect ratio
@@ -638,46 +642,60 @@ type AudioAttr struct {
 
 // single and multi-resolution image media
 type ImageAttr struct {
-	OriginID    string         `json:"originId,omitempty"`    // origin media (used by proxies)
-	UUID        string         `json:"uuid,omitempty"`        // global unique id for track
-	OriginUUID  string         `json:"originUuid,omitempty"`  // global unique id for origin track
-	TrackNum    int            `json:"trackNum,omitempty"`    // track number in multi-track containers
-	Width       int            `json:"width,omitempty"`       // native width
-	Height      int            `json:"height,omitempty"`      // native height
-	Depth       int            `json:"depth,omitempty"`       // color depth 8/10/12/14/16/24 bit
-	Sar         float32        `json:"sar,omitempty"`         // sample aspect ratio
-	Dar         float32        `json:"dar,omitempty"`         // display aspect ratio
-	PixelFormat PixelFormat    `json:"pixelFormat,omitempty"` // image pixel format (RGB24)
-	ColorModel  ColorModel     `json:"colorModel,omitempty"`  // image color space (sRGB)
-	Hashes      hash.HashBlock `json:"hashes,omitempty"`      // content checksums
-	Size        int64          `json:"size,omitempty"`        // file size
-	Filename    string         `json:"filename,omitempty"`    // media filename
-	Url         string         `json:"url,omitempty"`         // dynamic access url
+	OriginID       string         `json:"originId,omitempty"`       // origin media (used by proxies)
+	UUID           string         `json:"uuid,omitempty"`           // global unique id for track
+	OriginUUID     string         `json:"originUuid,omitempty"`     // global unique id for origin track
+	TrackNum       int            `json:"trackNum,omitempty"`       // track number in multi-track containers
+	Width          int            `json:"width"`                    // native width (may contain borders)
+	Height         int            `json:"height"`                   // native height (may contain borders)
+	ActiveWidth    int            `json:"activeWidth"`              // display width
+	ActiveHeight   int            `json:"activeHeight"`             // display height
+	Depth          int            `json:"depth,omitempty"`          // color depth 8/10/12/14/16/24 bit
+	Sar            float32        `json:"sar,omitempty"`            // sample aspect ratio
+	Dar            float32        `json:"dar,omitempty"`            // display aspect ratio
+	Codec          VideoCodec     `json:"codec,omitempty"`          // codec name
+	PixelFormat    PixelFormat    `json:"pixelFormat,omitempty"`    // image pixel format (RGB24)
+	ColorModel     ColorModel     `json:"colorModel,omitempty"`     // image color space (sRGB)
+	ColorRange     ColorRange     `json:"colorRange,omitempty"`     // color range (full or limited range)
+	ColorPrimaries ColorPrimaries `json:"colorPrimaries,omitempty"` // color primaries RGB/XYZ mapping
+	ColorTransfer  ColorTransfer  `json:"colorTransfer,omitempty"`  // color transfer (linearization, gamma)
+	ColorLocation  ColorLocation  `json:"colorLocation,omitempty"`  // color location (chroma subsample position)
+	Hashes         hash.HashBlock `json:"hashes,omitempty"`         // content checksums
+	Size           int64          `json:"size,omitempty"`           // file size
+	Filename       string         `json:"filename,omitempty"`       // media filename
+	Url            string         `json:"url,omitempty"`            // dynamic access url
 }
 
 // grid of images for quick thumbnail skimming
 type GridAttr struct {
-	OriginID    string         `json:"originId,omitempty"`    // origin media (used by proxies)
-	UUID        string         `json:"uuid,omitempty"`        // global unique id for track
-	OriginUUID  string         `json:"originUuid,omitempty"`  // global unique id for origin track
-	TrackNum    int            `json:"trackNum,omitempty"`    // track number in multi-track containers
-	FrameCount  int            `json:"frameCount,omitempty"`  // number of frames
-	GridX       int            `json:"gridX,omitempty"`       // horizontal grid fields
-	GridY       int            `json:"gridY,omitempty"`       // vertical grid fields
-	Width       int            `json:"width,omitempty"`       // frame/image width
-	Height      int            `json:"height,omitempty"`      // frame/image height
-	Depth       int            `json:"depth,omitempty"`       // color depth 8/10/12/14/16/24 bit
-	PixelFormat PixelFormat    `json:"pixelFormat,omitempty"` // image pixel format (RGB)
-	ColorModel  ColorModel     `json:"colorModel,omitempty"`  // image color space (sRGB)
-	Sar         float32        `json:"sar,omitempty"`         // sample aspect ratio
-	Dar         float32        `json:"dar,omitempty"`         // display aspect ratio
-	RateNum     int            `json:"rateNum,omitempty"`     // frame rate numerator
-	RateDen     int            `json:"rateDen,omitempty"`     // frame rate denumerator
-	Duration    time.Duration  `json:"duration,omitempty"`    // grid runtime
-	Hashes      hash.HashBlock `json:"hashes,omitempty"`      // content checksums
-	Size        int64          `json:"size,omitempty"`        // file size
-	Filename    string         `json:"filename,omitempty"`    // media filename
-	Url         string         `json:"url,omitempty"`         // dynamic access url
+	OriginID       string         `json:"originId,omitempty"`       // origin media (used by proxies)
+	UUID           string         `json:"uuid,omitempty"`           // global unique id for track
+	OriginUUID     string         `json:"originUuid,omitempty"`     // global unique id for origin track
+	TrackNum       int            `json:"trackNum,omitempty"`       // track number in multi-track containers
+	FrameCount     int            `json:"frameCount,omitempty"`     // number of frames
+	GridX          int            `json:"gridX,omitempty"`          // horizontal grid fields
+	GridY          int            `json:"gridY,omitempty"`          // vertical grid fields
+	Width          int            `json:"width"`                    // total width (may contain borders)
+	Height         int            `json:"height"`                   // total height (may contain borders)
+	ActiveWidth    int            `json:"activeWidth"`              // total display width
+	ActiveHeight   int            `json:"activeHeight"`             // total display height
+	Depth          int            `json:"depth,omitempty"`          // color depth 8/10/12/14/16/24 bit
+	Codec          VideoCodec     `json:"codec,omitempty"`          // codec name
+	PixelFormat    PixelFormat    `json:"pixelFormat,omitempty"`    // image pixel format (RGB)
+	ColorModel     ColorModel     `json:"colorModel,omitempty"`     // image color space (sRGB)
+	ColorRange     ColorRange     `json:"colorRange,omitempty"`     // color range (full or limited range)
+	ColorPrimaries ColorPrimaries `json:"colorPrimaries,omitempty"` // color primaries RGB/XYZ mapping
+	ColorTransfer  ColorTransfer  `json:"colorTransfer,omitempty"`  // color transfer (linearization, gamma)
+	ColorLocation  ColorLocation  `json:"colorLocation,omitempty"`  // color location (chroma subsample position)
+	Sar            float32        `json:"sar,omitempty"`            // sample aspect ratio
+	Dar            float32        `json:"dar,omitempty"`            // display aspect ratio
+	RateNum        int            `json:"rateNum,omitempty"`        // frame rate numerator
+	RateDen        int            `json:"rateDen,omitempty"`        // frame rate denumerator
+	Duration       time.Duration  `json:"duration,omitempty"`       // grid runtime
+	Hashes         hash.HashBlock `json:"hashes,omitempty"`         // content checksums
+	Size           int64          `json:"size,omitempty"`           // file size
+	Filename       string         `json:"filename,omitempty"`       // media filename
+	Url            string         `json:"url,omitempty"`            // dynamic access url
 }
 
 type SubtitleAttr struct {
