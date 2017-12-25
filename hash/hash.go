@@ -127,6 +127,17 @@ func (l HashTypeList) Flags() HashFlags {
 	return f
 }
 
+func (l *HashTypeList) Add(t HashType) HashTypeList {
+	if !l.Flags().Contains(t.Flag()) {
+		*l = append(*l, t)
+	}
+	return *l
+}
+
+func (l HashTypeList) Contains(t HashType) bool {
+	return l.Flags().Contains(t.Flag())
+}
+
 func ParseTypeList(s string) HashTypeList {
 	l := make(HashTypeList, 0)
 	for _, v := range strings.Split(s, ",") {
@@ -247,7 +258,9 @@ func (h HashBlock) Clone(flags HashFlags) HashBlock {
 func (h *HashBlock) NewReader(r io.Reader, flags HashFlags) io.Reader {
 
 	// always enable default hash
-	flags |= DefaultHash.Flag()
+	if flags == 0 {
+		flags |= DefaultHash.Flag()
+	}
 
 	rr := r
 	if (flags&HASH_TYPE_MD5 > 0) && h.md5 == nil {
@@ -280,7 +293,9 @@ func (h *HashBlock) NewReader(r io.Reader, flags HashFlags) io.Reader {
 func (h *HashBlock) NewWriter(w io.Writer, flags HashFlags) io.Writer {
 
 	// always enable default hash
-	flags |= DefaultHash.Flag()
+	if flags == 0 {
+		flags |= DefaultHash.Flag()
+	}
 
 	// each hash.Hash implements io.Writer
 	wl := make([]io.Writer, 0, len(HashTypesAll)+1)
@@ -404,7 +419,8 @@ func (h *HashBlock) Get(key HashType) string {
 }
 
 func (h HashBlock) JsonString() string {
-	b, _ := json.MarshalIndent(h, "", "  ")
+	type _t HashBlock
+	b, _ := json.MarshalIndent(_t(h), "", "  ")
 	return string(b)
 }
 
