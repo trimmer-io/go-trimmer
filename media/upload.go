@@ -702,15 +702,19 @@ func (r *UploadRequest) uploadMulti(ctx context.Context) (size int64, hashes has
 	for sz < r.Size {
 		// retry on checksum errors
 		if err = r.uploadPart(ctx, r.Reader, overwritePart); err != nil {
-			retries--
-			r.Reader.Seek(sz, io.SeekStart)
+			// fail when upload has been cancelled
+			if e, ok := err.(trimmer.TrimmerError); ok && e.IsApi() && e.StatusCode == 404 {
+				return
+			}
 
 			// FIXME: support retries on more transient error conditions
 			//        such as io/network errors and 5xx server errors
 			//
+			retries--
 			if retries == 0 || err != hash.EInvalidHash {
 				return
 			}
+			r.Reader.Seek(sz, io.SeekStart)
 			overwritePart = true
 			err = nil
 			wait := trimmer.RetryBackoffTime * time.Duration(trimmer.MaxRetries-retries-1)
