@@ -33,6 +33,7 @@ var (
 	xxh    bool
 	t2     bool
 	all    bool
+	none   bool
 )
 
 func init() {
@@ -42,6 +43,7 @@ func init() {
 	flag.BoolVar(&xxh, "xxh", false, "enable XXhash")
 	flag.BoolVar(&t2, "t2", false, "enable Tiger2 hash")
 	flag.BoolVar(&all, "all", false, "enable all hashes")
+	flag.BoolVar(&none, "none", false, "test file read performance only")
 }
 
 func fail(v interface{}) {
@@ -63,6 +65,11 @@ func main() {
 		fail(err)
 	}
 	defer f.Close()
+
+	if none {
+		io.Copy(ioutil.Discard, f)
+		return
+	}
 
 	ht := make(hash.HashTypeList, 0)
 	if sha1 || all {
