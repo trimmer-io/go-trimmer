@@ -1,6 +1,6 @@
 // Trimmer SDK
 //
-// Copyright (c) 2017 Alexander Eichhorn
+// Copyright (c) 2017-2018 Alexander Eichhorn
 //
 // Licensed under the Apache License, Version 2.0 (the "License"): you may
 // not use this file except in compliance with the License. You may obtain
@@ -35,10 +35,10 @@ import (
 //
 
 // apiversion is the currently supported API version
-const ApiVersion = "2017-08-04"
+const ApiVersion = "2018-04-10"
 
 // clientversion is the binding version
-const ClientVersion = "1.0.0"
+const ClientVersion = "1.0.1"
 
 // defaultHTTPTimeout is the default timeout on the http.Client used by the library.
 const defaultHTTPTimeout = 15 * time.Second
