@@ -223,6 +223,11 @@ const (
 	MediaFamilyPostProres        trimmer.MediaFamily = "post.prores"
 	MediaFamilyPostAVCUltra      trimmer.MediaFamily = "post.avcultra"
 	MediaFamilyVfx               trimmer.MediaFamily = "vfx"
+	MediaFamilyVfxDPX            trimmer.MediaFamily = "vfx.dpx"
+	MediaFamilyVfxEXR            trimmer.MediaFamily = "vfx.exr"
+	MediaFamilyVfxTIFF           trimmer.MediaFamily = "vfx.tiff"
+	MediaFamilyVfxJPEG           trimmer.MediaFamily = "vfx.jpeg"
+	MediaFamilyVfxJPEG2000       trimmer.MediaFamily = "vfx.jpeg2000"
 	MediaFamilyWeb               trimmer.MediaFamily = "web"
 	MediaFamilyWebImage          trimmer.MediaFamily = "web.image"
 	MediaFamilyWebHtml5          trimmer.MediaFamily = "web.html5"
@@ -272,6 +277,16 @@ func ParseMediaFamily(s string) trimmer.MediaFamily {
 		return MediaFamilyPostAVCUltra
 	case "vfx":
 		return MediaFamilyVfx
+	case "vfx.dpx":
+		return MediaFamilyVfxDPX
+	case "vfx.exr":
+		return MediaFamilyVfxEXR
+	case "vfx.tiff":
+		return MediaFamilyVfxTIFF
+	case "vfx.jpeg":
+		return MediaFamilyVfxJPEG
+	case "vfx.jpeg2000":
+		return MediaFamilyVfxJPEG2000
 	case "web":
 		return MediaFamilyWeb
 	case "web.image":
@@ -345,6 +360,7 @@ func IsValidRelation(x trimmer.MediaRelation) bool {
 const (
 	MediaFormatUndefined trimmer.MediaFormat = ""
 	MediaFormatAAC       trimmer.MediaFormat = "aac"
+	MediaFormatALE       trimmer.MediaFormat = "ale"
 	MediaFormatArriLook  trimmer.MediaFormat = "aml"
 	MediaFormatArriRaw   trimmer.MediaFormat = "ari"
 	MediaFormatAVI       trimmer.MediaFormat = "avi"
@@ -355,7 +371,14 @@ const (
 	MediaFormatCUBE      trimmer.MediaFormat = "cube"
 	MediaFormatDATA      trimmer.MediaFormat = "data"
 	MediaFormatDNG       trimmer.MediaFormat = "dng"
+	MediaFormatDOC       trimmer.MediaFormat = "doc"
+	MediaFormatDOCM      trimmer.MediaFormat = "docm"
+	MediaFormatDOCX      trimmer.MediaFormat = "docx"
+	MediaFormatDOT       trimmer.MediaFormat = "dot"
+	MediaFormatDOTM      trimmer.MediaFormat = "dotm"
+	MediaFormatDOTX      trimmer.MediaFormat = "dotx"
 	MediaFormatDPX       trimmer.MediaFormat = "dpx"
+	MediaFormatEDL       trimmer.MediaFormat = "edl"
 	MediaFormatEXR       trimmer.MediaFormat = "exr"
 	MediaFormatFLAC      trimmer.MediaFormat = "flac"
 	MediaFormatJPEG      trimmer.MediaFormat = "jpeg"
@@ -376,6 +399,17 @@ const (
 	MediaFormatOGG       trimmer.MediaFormat = "ogg"
 	MediaFormatPDF       trimmer.MediaFormat = "pdf"
 	MediaFormatPNG       trimmer.MediaFormat = "png"
+	MediaFormatPOT       trimmer.MediaFormat = "pot"
+	MediaFormatPOTM      trimmer.MediaFormat = "potm"
+	MediaFormatPOTX      trimmer.MediaFormat = "potx"
+	MediaFormatPPA       trimmer.MediaFormat = "ppa"
+	MediaFormatPPAM      trimmer.MediaFormat = "ppam"
+	MediaFormatPPS       trimmer.MediaFormat = "pps"
+	MediaFormatPPSM      trimmer.MediaFormat = "ppsm"
+	MediaFormatPPSX      trimmer.MediaFormat = "ppsx"
+	MediaFormatPPT       trimmer.MediaFormat = "ppt"
+	MediaFormatPPTM      trimmer.MediaFormat = "pptm"
+	MediaFormatPPTX      trimmer.MediaFormat = "pptx"
 	MediaFormatPSD       trimmer.MediaFormat = "psd"
 	MediaFormatR3D       trimmer.MediaFormat = "r3d"
 	MediaFormatRMD       trimmer.MediaFormat = "rmd"
@@ -383,9 +417,18 @@ const (
 	MediaFormatSVG       trimmer.MediaFormat = "svg"
 	MediaFormatTIFF      trimmer.MediaFormat = "tiff"
 	MediaFormatTXT       trimmer.MediaFormat = "txt"
-	MediaFormatWebVTT    trimmer.MediaFormat = "vtt"
 	MediaFormatWAV       trimmer.MediaFormat = "wav"
 	MediaFormatWEBM      trimmer.MediaFormat = "webm"
+	MediaFormatWebVTT    trimmer.MediaFormat = "vtt"
+	MediaFormatXLA       trimmer.MediaFormat = "xla"
+	MediaFormatXLAM      trimmer.MediaFormat = "xlam"
+	MediaFormatXLS       trimmer.MediaFormat = "xls"
+	MediaFormatXLSB      trimmer.MediaFormat = "xlsb"
+	MediaFormatXLSM      trimmer.MediaFormat = "xlsm"
+	MediaFormatXLSX      trimmer.MediaFormat = "xlsx"
+	MediaFormatXLT       trimmer.MediaFormat = "xlt"
+	MediaFormatXLTM      trimmer.MediaFormat = "xltm"
+	MediaFormatXLTX      trimmer.MediaFormat = "xltx"
 	MediaFormatXML       trimmer.MediaFormat = "xml"
 	MediaFormatXMP       trimmer.MediaFormat = "xmp"
 )
@@ -461,6 +504,8 @@ func ParseMediaFormat(s string) trimmer.MediaFormat {
 	switch strings.ToLower(strings.Trim(s, ".")) {
 	case "aac":
 		return MediaFormatAAC
+	case "ale":
+		return MediaFormatALE
 	case "aml":
 		return MediaFormatArriLook
 	case "ari":
@@ -481,16 +526,30 @@ func ParseMediaFormat(s string) trimmer.MediaFormat {
 		return MediaFormatDATA
 	case "dng":
 		return MediaFormatDNG
+	case "doc":
+		return MediaFormatDOC
+	case "docm":
+		return MediaFormatDOCM
+	case "docx":
+		return MediaFormatDOCX
+	case "dot":
+		return MediaFormatDOT
+	case "dotm":
+		return MediaFormatDOTM
+	case "dotx":
+		return MediaFormatDOTX
 	case "dpx":
 		return MediaFormatDPX
+	case "edl":
+		return MediaFormatEDL
 	case "exr":
 		return MediaFormatEXR
 	case "flac":
 		return MediaFormatFLAC
-	case "jpg", "jpeg":
-		return MediaFormatJPEG
 	case "jp2", "j2k":
 		return MediaFormatJPEG2000
+	case "jpg", "jpeg":
+		return MediaFormatJPEG
 	case "jpx":
 		return MediaFormatJPEG2000X
 	case "json":
@@ -523,6 +582,28 @@ func ParseMediaFormat(s string) trimmer.MediaFormat {
 		return MediaFormatPDF
 	case "png":
 		return MediaFormatPNG
+	case "pot":
+		return MediaFormatPOT
+	case "potm":
+		return MediaFormatPOTM
+	case "potx":
+		return MediaFormatPOTX
+	case "ppa":
+		return MediaFormatPPA
+	case "ppam":
+		return MediaFormatPPAM
+	case "pps":
+		return MediaFormatPPS
+	case "ppsm":
+		return MediaFormatPPSM
+	case "ppsx":
+		return MediaFormatPPSX
+	case "ppt":
+		return MediaFormatPPT
+	case "pptm":
+		return MediaFormatPPTM
+	case "pptx":
+		return MediaFormatPPTX
 	case "psd":
 		return MediaFormatPSD
 	case "r3d":
@@ -543,6 +624,24 @@ func ParseMediaFormat(s string) trimmer.MediaFormat {
 		return MediaFormatWAV
 	case "webm":
 		return MediaFormatWEBM
+	case "xla":
+		return MediaFormatXLA
+	case "xlam":
+		return MediaFormatXLAM
+	case "xls":
+		return MediaFormatXLS
+	case "xlsb":
+		return MediaFormatXLSB
+	case "xlsm":
+		return MediaFormatXLSM
+	case "xlsx":
+		return MediaFormatXLSX
+	case "xlt":
+		return MediaFormatXLT
+	case "xltm":
+		return MediaFormatXLTM
+	case "xltx":
+		return MediaFormatXLTX
 	case "xml":
 		return MediaFormatXML
 	case "xmp":

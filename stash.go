@@ -21,7 +21,7 @@ import (
 )
 
 // StashKind is the list of allowed values for stash kinds.
-// Allowed values are "system", "virtual", "user".
+// Allowed values are "system", "virtual", "user", "smart".
 type StashType string
 
 // StashParams is the set of parameters that can be used to create and
@@ -30,6 +30,8 @@ type StashType string
 type StashParams struct {
 	Name        string        `json:"name"`
 	DisplayName string        `json:"displayName,omitempty"`
+	Description string        `json:"description,omitempty"`
+	Query       string        `json:"query,omitempty"`
 	AccessClass AccessClass   `json:"access,omitempty"`
 	ImageId     string        `json:"imageId,omitempty"`
 	Embed       ApiEmbedFlags `json:"embed,omitempty"`
@@ -51,7 +53,9 @@ type Stash struct {
 	AuthorId    string           `json:"authorId"`
 	Name        string           `json:"name"`
 	DisplayName string           `json:"displayName"`
+	Description string           `json:"description"`
 	Type        StashType        `json:"type"`
+	Query       string           `json:"query"`
 	AccessClass AccessClass      `json:"access"`
 	ImageId     string           `json:"imageId"`
 	CreatedAt   time.Time        `json:"createdAt"`

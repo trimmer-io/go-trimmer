@@ -22,7 +22,8 @@ import (
 )
 
 // JobState is the list of allowed values for the job state of a status object.
-// Allowed values are "created", "queued", "running", "complete", "failed", "aborted".
+// Allowed values are "created", "queued", "running", "complete", "failed",
+// "aborted" and special state groups "all", "active", "done".
 type JobState string
 
 // JobType is the list of allowed values for the operation in progress.

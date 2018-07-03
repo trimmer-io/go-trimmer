@@ -22,6 +22,7 @@ import (
 
 const (
 	JobStateUndefined trimmer.JobState = ""
+	JobStateAll       trimmer.JobState = "all"    // used for listing states only
 	JobStateActive    trimmer.JobState = "active" // used for listing states only
 	JobStateDone      trimmer.JobState = "done"   // used for listing states only
 	JobStateCreated   trimmer.JobState = "created"
@@ -34,6 +35,8 @@ const (
 
 func ParseJobState(s string) trimmer.JobState {
 	switch s {
+	case "all":
+		return JobStateAll
 	case "active":
 		return JobStateActive
 	case "done":

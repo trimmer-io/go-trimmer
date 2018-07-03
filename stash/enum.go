@@ -22,9 +22,10 @@ import (
 
 const (
 	StashTypeUndefined trimmer.StashType = ""
-	StashTypeSystem    trimmer.StashType = "system"  // cannot be deleted
+	StashTypeSystem    trimmer.StashType = "system"  // cannot delete, can have links
 	StashTypeVirtual   trimmer.StashType = "virtual" // cannot delete, cannot link/unlink
-	StashTypeUser      trimmer.StashType = "user"    // owned by user
+	StashTypeUser      trimmer.StashType = "user"    // can delete, can have links
+	StashTypeSmart     trimmer.StashType = "smart"   // can delete, cannot have links
 )
 
 func ParseStashType(s string) trimmer.StashType {
@@ -35,6 +36,8 @@ func ParseStashType(s string) trimmer.StashType {
 		return StashTypeVirtual
 	case "user":
 		return StashTypeUser
+	case "smart":
+		return StashTypeSmart
 	default:
 		return StashTypeUndefined
 	}

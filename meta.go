@@ -28,6 +28,7 @@ import (
 type MetaUpdateParams struct {
 	Actions MetaValueList `json:"actions"`
 	Version string        `json:"version"`
+	Comment string        `json:"comment"`
 	Embed   ApiEmbedFlags `json:"embed,omitempty"`
 }
 
