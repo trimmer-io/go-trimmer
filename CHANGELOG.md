@@ -1,6 +1,6 @@
 ## v1.0.2 [2018-07-04]
 
-  * Supports new API version 2018-04-10
+  * New API version 2018-04-10
   * Smart stash support and stash description
   * Add commit messages to metadata updates
   * Add job state group `all` to list all jobs

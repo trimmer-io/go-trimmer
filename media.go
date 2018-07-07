@@ -185,7 +185,7 @@ func (l MediaFamilyList) String() string {
 }
 
 // MediaRelation is the list of allowed values for media format relation types.
-// Allowed values are "source", "inter", "proxy", "master".
+// Allowed values are "source", "inter", "proxy", "master", "sidecar".
 type MediaRelation string
 type MediaRelationList []MediaRelation
 

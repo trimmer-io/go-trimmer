@@ -336,6 +336,7 @@ const (
 	MediaRelationInter     trimmer.MediaRelation = "inter"
 	MediaRelationProxy     trimmer.MediaRelation = "proxy"
 	MediaRelationMaster    trimmer.MediaRelation = "master"
+	MediaRelationSidecar   trimmer.MediaRelation = "sidecar"
 )
 
 func ParseMediaRelation(s string) trimmer.MediaRelation {
@@ -348,6 +349,8 @@ func ParseMediaRelation(s string) trimmer.MediaRelation {
 		return MediaRelationProxy
 	case "master":
 		return MediaRelationMaster
+	case "sidecar":
+		return MediaRelationSidecar
 	default:
 		return MediaRelationUndefined
 	}
