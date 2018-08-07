@@ -19,6 +19,7 @@ package media
 import (
 	"context"
 	"io"
+	"net/http"
 	"path/filepath"
 
 	trimmer "trimmer.io/go-trimmer"
@@ -56,7 +57,7 @@ func (c Client) DownloadUrl(ctx context.Context, uri string, h hash.HashBlock, d
 		Accept: "*/*",
 	}
 
-	size, clientHashes, serverHashes, err := c.CDN.CallChecksum(ctx, "GET", uri, c.Key, c.Sess, ch, h.AnyFlag(), nil, dst, nil)
+	size, clientHashes, serverHashes, err := c.CDN.CallChecksum(ctx, http.MethodGet, uri, c.Key, c.Sess, ch, h.AnyFlag(), nil, dst, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +90,6 @@ func (c Client) DownloadUrl(ctx context.Context, uri string, h hash.HashBlock, d
 
 // support multi-file media like multi-resolution images and image sequences
 func (c Client) DownloadMulti(ctx context.Context, src *trimmer.Media, save MultiFileSaver) error {
-
 	if src == nil || save == nil {
 		return trimmer.ENilPointer
 	}

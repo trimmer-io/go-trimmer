@@ -19,6 +19,7 @@ package session
 
 import (
 	"context"
+	"net/http"
 	"os"
 
 	trimmer "trimmer.io/go-trimmer"
@@ -51,7 +52,7 @@ func Check(ctx context.Context) error {
 func (c Client) Check(ctx context.Context) error {
 	// GET /users/me
 	v := &trimmer.User{}
-	err := c.B.Call(ctx, "GET", "/users/me", c.Key, c.Sess, nil, nil, v)
+	err := c.B.Call(ctx, http.MethodGet, "/users/me", c.Key, c.Sess, nil, nil, v)
 	if err == nil {
 		c.Sess.User = v
 		// TODO: extract auth scopes from header
@@ -71,7 +72,7 @@ func (c Client) Refresh(ctx context.Context) error {
 	}
 
 	s := &trimmer.Session{}
-	err := c.B.Call(ctx, "POST", "/auth/refresh", c.Key, c.Sess, nil, authRefresh, s)
+	err := c.B.Call(ctx, http.MethodPost, "/auth/refresh", c.Key, c.Sess, nil, authRefresh, s)
 	if err != nil {
 		return err
 	}
@@ -85,7 +86,7 @@ func Login(ctx context.Context, params *trimmer.LoginParams) error {
 
 func (c Client) Login(ctx context.Context, params *trimmer.LoginParams) error {
 	s := &trimmer.Session{}
-	err := c.B.Call(ctx, "POST", "/auth/login", c.Key, nil, nil, params, s)
+	err := c.B.Call(ctx, http.MethodPost, "/auth/login", c.Key, nil, nil, params, s)
 	if err == nil {
 		c.Sess.Update(s)
 
@@ -102,7 +103,7 @@ func Logout(ctx context.Context) error {
 }
 
 func (c Client) Logout(ctx context.Context) error {
-	err := c.B.Call(ctx, "POST", "/auth/logout", c.Key, c.Sess, nil, nil, nil)
+	err := c.B.Call(ctx, http.MethodPost, "/auth/logout", c.Key, c.Sess, nil, nil, nil)
 	if err == nil {
 		if trimmer.LogLevel > 1 {
 			trimmer.Logger.Printf("INFO: Logged out\n")

@@ -386,7 +386,8 @@ func (s *BackendConfiguration) NewRequest(method, path string, key ApiKey, sess 
 	}
 
 	// add content-type header to POST, PUT, PATCH
-	if method == "POST" || method == "PUT" || method == "PATCH" {
+	switch method {
+	case http.MethodPost, http.MethodPut, http.MethodPatch:
 		req.Header.Add("Content-Type", headers.ContentType)
 	}
 
@@ -517,7 +518,7 @@ func (s *BackendConfiguration) Do(ctx context.Context, req *http.Request, sess *
 
 		// parse error
 		e := NewApiError(resp.StatusCode)
-		if isJsonResponse && req.Method != "HEAD" && resp.ContentLength != 0 {
+		if isJsonResponse && req.Method != http.MethodHead && resp.ContentLength != 0 {
 			e = ParseApiError(resp.Body)
 		}
 		e.RequestId = resp.Header.Get("X-Request-Id")

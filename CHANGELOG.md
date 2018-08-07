@@ -2,17 +2,22 @@
 
   * New API version 2018-08-04
   * new asset states: `published`, `reviewing`, `approved`, `rejected`, `archived`
+  * new asset method `Count` to increase view and download counters
+  * new asset methods `Lock` and `Unlock` to temporarily prevent editing
   * new `AssetStatistics` fields: versions, views, downloads
   * asset version support
+    - new methods `ForkVersion`, `ListVersions` and `DeleteVersions` on asset
     - new `Asset` fields: `version`, `locked`, `parentId`
     - new fork type 'version-forks'
     - new fields IN `AssetForkParams`: `version`, `locked`
     - new fields in `AssetListParams`: `version`, `original`, `head`
     - new fields in `LinkListParams`: `version`, `original`, `head`
+  * use Go's http package const http verbs (internal cleanup)
 
-### Breaking API changes
+### Breaking changes
 
 - replaced asset states `analyzing` and `transcoding` with more generic state `processing`
+- renamed method `asset.Fork` to `asset.ForkCopy`
 - renamed asset field `version` (hash of metadata revision) to `revision`
 - added new asset field `version` (user-defined string, default HEAD)
 - renamed asset metadata type from `MetaVersion` to `MetaRevision`

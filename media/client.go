@@ -20,6 +20,7 @@ package media
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strconv"
 	"time"
@@ -102,7 +103,7 @@ func (c Client) Get(ctx context.Context, mediaId string, params *trimmer.MediaPa
 		u += fmt.Sprintf("?%v", q.Encode())
 	}
 	v := &trimmer.Media{}
-	err := c.B.Call(ctx, "GET", u, c.Key, c.Sess, nil, nil, v)
+	err := c.B.Call(ctx, http.MethodGet, u, c.Key, c.Sess, nil, nil, v)
 	return v, err
 }
 
@@ -115,7 +116,7 @@ func (c Client) Update(ctx context.Context, mediaId string, params *trimmer.Medi
 	}
 	StripMetadataUrls(params.Attr)
 	v := &trimmer.Media{}
-	err := c.B.Call(ctx, "PATCH", fmt.Sprintf("/media/%v", mediaId), c.Key, c.Sess, nil, params, v)
+	err := c.B.Call(ctx, http.MethodPatch, fmt.Sprintf("/media/%v", mediaId), c.Key, c.Sess, nil, params, v)
 	return v, err
 }
 
@@ -123,7 +124,7 @@ func (c Client) Delete(ctx context.Context, mediaId string) error {
 	if mediaId == "" {
 		return trimmer.EIDMissing
 	}
-	return c.B.Call(ctx, "DELETE", fmt.Sprintf("/media/%v", mediaId), c.Key, c.Sess, nil, nil, nil)
+	return c.B.Call(ctx, http.MethodDelete, fmt.Sprintf("/media/%v", mediaId), c.Key, c.Sess, nil, nil, nil)
 }
 
 func (c Client) CompleteUpload(ctx context.Context, mediaId string, params *trimmer.MediaUploadCompletionParams) (*trimmer.Media, error) {
@@ -131,7 +132,7 @@ func (c Client) CompleteUpload(ctx context.Context, mediaId string, params *trim
 		return nil, trimmer.EIDMissing
 	}
 	v := &trimmer.Media{}
-	err := c.B.Call(ctx, "POST", fmt.Sprintf("/media/%v/complete", mediaId), c.Key, c.Sess, nil, params, v)
+	err := c.B.Call(ctx, http.MethodPost, fmt.Sprintf("/media/%v/complete", mediaId), c.Key, c.Sess, nil, params, v)
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +140,6 @@ func (c Client) CompleteUpload(ctx context.Context, mediaId string, params *trim
 }
 
 func (c Client) ListProfiles(ctx context.Context, mediaId string, params *trimmer.ProfileListParams) *profile.Iter {
-
 	type profileList struct {
 		trimmer.ListMeta
 		Values trimmer.ProfileList `json:"profiles"`
@@ -169,7 +169,7 @@ func (c Client) ListProfiles(ctx context.Context, mediaId string, params *trimme
 
 	return &profile.Iter{Iter: trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
 		list := &profileList{}
-		err := c.B.Call(ctx, "GET", fmt.Sprintf("/media/%v/profiles?%s", mediaId, b.Encode()), c.Key, c.Sess, nil, nil, list)
+		err := c.B.Call(ctx, http.MethodGet, fmt.Sprintf("/media/%v/profiles?%s", mediaId, b.Encode()), c.Key, c.Sess, nil, nil, list)
 		ret := make([]interface{}, len(list.Values))
 
 		// pass concrete values as abstract interface into iterator
@@ -182,7 +182,6 @@ func (c Client) ListProfiles(ctx context.Context, mediaId string, params *trimme
 }
 
 func (c Client) ListReplicas(ctx context.Context, mediaId string, params *trimmer.ReplicaListParams) *replica.Iter {
-
 	if mediaId == "" {
 		return &replica.Iter{Iter: trimmer.GetIterErr(trimmer.EIDMissing)}
 	}
@@ -222,7 +221,7 @@ func (c Client) ListReplicas(ctx context.Context, mediaId string, params *trimme
 
 	return &replica.Iter{Iter: trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
 		list := &replicaList{}
-		err := c.B.Call(ctx, "GET", fmt.Sprintf("/media/%v/replicas?%s", mediaId, b.Encode()), c.Key, c.Sess, nil, nil, list)
+		err := c.B.Call(ctx, http.MethodGet, fmt.Sprintf("/media/%v/replicas?%s", mediaId, b.Encode()), c.Key, c.Sess, nil, nil, list)
 		ret := make([]interface{}, len(list.Values))
 
 		// pass concrete values as abstract interface into iterator
@@ -245,7 +244,7 @@ func (c Client) NewReplica(ctx context.Context, mediaId, volumeId string, params
 		u += fmt.Sprintf("?%v", q.Encode())
 	}
 	v := &trimmer.Job{}
-	err := c.B.Call(ctx, "POST", u, c.Key, c.Sess, nil, params, v)
+	err := c.B.Call(ctx, http.MethodPost, u, c.Key, c.Sess, nil, params, v)
 	if err != nil {
 		return nil, err
 	}
@@ -263,7 +262,7 @@ func (c Client) RegisterReplica(ctx context.Context, mediaId, volumeId string, p
 		u += fmt.Sprintf("?%v", q.Encode())
 	}
 	v := &trimmer.Replica{}
-	err := c.B.Call(ctx, "PUT", u, c.Key, c.Sess, nil, params, v)
+	err := c.B.Call(ctx, http.MethodPut, u, c.Key, c.Sess, nil, params, v)
 	if err != nil {
 		return nil, err
 	}
@@ -274,5 +273,5 @@ func (c Client) DeleteReplica(ctx context.Context, mediaId, volumeId string, par
 	if mediaId == "" || volumeId == "" {
 		return trimmer.EIDMissing
 	}
-	return c.B.Call(ctx, "DELETE", fmt.Sprintf("/media/%v/replicas/%v", mediaId, volumeId), c.Key, c.Sess, nil, params, nil)
+	return c.B.Call(ctx, http.MethodDelete, fmt.Sprintf("/media/%v/replicas/%v", mediaId, volumeId), c.Key, c.Sess, nil, params, nil)
 }

@@ -34,6 +34,11 @@ const (
 	LIST_MAX_LIMIT = 200
 )
 
+// EmbedParams is the helper that only contains an embed property.
+type EmbedParams struct {
+	Embed ApiEmbedFlags `json:"embed,omitempty"`
+}
+
 // ListParams is the structure that contains the common properties
 // of any *ListParams structure.
 type ListParams struct {
@@ -59,7 +64,6 @@ type ListMeta struct {
 
 // AppendTo adds the common parameters to the query string values.
 func (p *ListParams) AppendTo(q *url.Values) {
-
 	if p.MaxId != "" {
 		q.Add(maxId, p.MaxId)
 	}

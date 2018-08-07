@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"io"
 	"mime/multipart"
+	"net/http"
 	"net/textproto"
 	"net/url"
 	"strconv"
@@ -497,7 +498,7 @@ func (r *UploadRequest) uploadSingle(ctx context.Context) (int64, hash.HashBlock
 	}
 
 	i := &UploadInfo{}
-	_, clientHashes, serverHashes, err := r.C.CDN.CallChecksum(ctx, "PUT", r.SingleUrl(), r.C.Key, r.C.Sess, h, r.Hashes.AnyFlag(), r.Reader, nil, i)
+	_, clientHashes, serverHashes, err := r.C.CDN.CallChecksum(ctx, http.MethodPut, r.SingleUrl(), r.C.Key, r.C.Sess, h, r.Hashes.AnyFlag(), r.Reader, nil, i)
 	if err != nil {
 		return 0, hash.HashBlock{}, err
 	}
@@ -529,7 +530,7 @@ func (r *UploadRequest) initMulti(ctx context.Context) error {
 	}
 
 	upload := &UploadInfo{}
-	err := r.C.CDN.Call(ctx, "POST", r.InitMultiUrl(), r.C.Key, r.C.Sess, h, nil, upload)
+	err := r.C.CDN.Call(ctx, http.MethodPost, r.InitMultiUrl(), r.C.Key, r.C.Sess, h, nil, upload)
 	if err != nil {
 		return err
 	}
@@ -563,7 +564,7 @@ func (r *UploadRequest) uploadPart(ctx context.Context, reader io.Reader, overwr
 	}
 
 	i := &UploadInfo{}
-	_, clientHash, serverHash, err := r.C.CDN.CallChecksum(ctx, "PUT", r.UploadMultiUrl(r.PartNum), r.C.Key, r.C.Sess, h, hash.HASH_TYPE_SHA256, io.LimitReader(reader, r.PartSize), nil, i)
+	_, clientHash, serverHash, err := r.C.CDN.CallChecksum(ctx, http.MethodPut, r.UploadMultiUrl(r.PartNum), r.C.Key, r.C.Sess, h, hash.HASH_TYPE_SHA256, io.LimitReader(reader, r.PartSize), nil, i)
 	if err != nil {
 		return err
 	}
@@ -607,7 +608,7 @@ func (r *UploadRequest) abortMulti(ctx context.Context) error {
 		ContentDisposition: ct.Encode(),
 	}
 
-	err := r.C.CDN.Call(ctx, "DELETE", r.EndMultiUrl(), r.C.Key, r.C.Sess, h, nil, nil)
+	err := r.C.CDN.Call(ctx, http.MethodDelete, r.EndMultiUrl(), r.C.Key, r.C.Sess, h, nil, nil)
 	if err != nil {
 		return err
 	}
@@ -635,7 +636,7 @@ func (r *UploadRequest) commitMulti(ctx context.Context) (hash.HashBlock, error)
 	}
 
 	i := &UploadInfo{}
-	err := r.C.CDN.Call(ctx, "POST", r.EndMultiUrl(), r.C.Key, r.C.Sess, h, nil, i)
+	err := r.C.CDN.Call(ctx, http.MethodPost, r.EndMultiUrl(), r.C.Key, r.C.Sess, h, nil, i)
 	if err != nil {
 		return i.Hashes, err
 	}
@@ -755,7 +756,7 @@ func (r *UploadRequest) Do(ctx context.Context) (*trimmer.FileInfo, error) {
 	r.Manifest = manifestCache.GetManifest(r.VolumePrefix())
 	if r.Manifest == nil {
 		r.Manifest = &trimmer.VolumeManifest{}
-		if err := r.C.CDN.Call(ctx, "GET", r.ManifestUrl(), r.C.Key, r.C.Sess, nil, nil, &r.Manifest); err != nil {
+		if err := r.C.CDN.Call(ctx, http.MethodGet, r.ManifestUrl(), r.C.Key, r.C.Sess, nil, nil, &r.Manifest); err != nil {
 			return nil, err
 		}
 		// check the manifest is valid
@@ -846,7 +847,7 @@ func (c Client) UploadImage(ctx context.Context, uri string, params *trimmer.Fil
 
 	v := &trimmer.Media{}
 	u := fmt.Sprintf("%s?%s", uri, q.Encode())
-	err = c.B.CallMultipart(ctx, "POST", u, c.Key, c.Sess, ch, body, v)
+	err = c.B.CallMultipart(ctx, http.MethodPost, u, c.Key, c.Sess, ch, body, v)
 	if err != nil {
 		return nil, err
 	}

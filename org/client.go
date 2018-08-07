@@ -21,6 +21,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
@@ -120,7 +121,7 @@ func (c Client) Get(ctx context.Context, orgId string, params *trimmer.OrgParams
 		u += fmt.Sprintf("?%v", q.Encode())
 	}
 	v := &trimmer.Org{}
-	err := c.B.Call(ctx, "GET", u, c.Key, c.Sess, nil, nil, v)
+	err := c.B.Call(ctx, http.MethodGet, u, c.Key, c.Sess, nil, nil, v)
 	return v, err
 }
 
@@ -132,7 +133,7 @@ func (c Client) Update(ctx context.Context, orgId string, params *trimmer.OrgPar
 		return nil, trimmer.ENilPointer
 	}
 	v := &trimmer.Org{}
-	err := c.B.Call(ctx, "PATCH", fmt.Sprintf("/orgs/%v", orgId), c.Key, c.Sess, nil, params, v)
+	err := c.B.Call(ctx, http.MethodPatch, fmt.Sprintf("/orgs/%v", orgId), c.Key, c.Sess, nil, params, v)
 	return v, err
 }
 
@@ -183,7 +184,7 @@ func (c Client) ListMedia(ctx context.Context, orgId string, params *trimmer.Med
 
 	return &media.Iter{Iter: trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
 		list := &mediaList{}
-		err := c.B.Call(ctx, "GET", fmt.Sprintf("/orgs/%v/media?%v", orgId, b.Encode()), c.Key, c.Sess, nil, nil, list)
+		err := c.B.Call(ctx, http.MethodGet, fmt.Sprintf("/orgs/%v/media?%v", orgId, b.Encode()), c.Key, c.Sess, nil, nil, list)
 		ret := make([]interface{}, len(list.Values))
 
 		// pass concrete values as abstract interface into iterator
@@ -227,7 +228,7 @@ func (c Client) ListEvents(ctx context.Context, orgId string, params *trimmer.Ev
 
 	return &event.Iter{trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
 		list := &eventList{}
-		err := c.B.Call(ctx, "GET", fmt.Sprintf("/orgs/%v/events?%v", orgId, b.Encode()), c.Key, c.Sess, nil, nil, list)
+		err := c.B.Call(ctx, http.MethodGet, fmt.Sprintf("/orgs/%v/events?%v", orgId, b.Encode()), c.Key, c.Sess, nil, nil, list)
 		ret := make([]interface{}, len(list.Values))
 
 		// pass concrete values as abstract interface into iterator
@@ -244,7 +245,7 @@ func (c Client) NewWorkspace(ctx context.Context, orgId string, params *trimmer.
 		return nil, trimmer.ENilPointer
 	}
 	v := &trimmer.Workspace{}
-	err := c.B.Call(ctx, "POST", fmt.Sprintf("/orgs/%v/workspaces", orgId), c.Key, c.Sess, nil, params, v)
+	err := c.B.Call(ctx, http.MethodPost, fmt.Sprintf("/orgs/%v/workspaces", orgId), c.Key, c.Sess, nil, params, v)
 	return v, err
 }
 
@@ -283,7 +284,7 @@ func (c Client) ListWorkspaces(ctx context.Context, orgId string, params *trimme
 
 	return &workspace.Iter{trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
 		list := &workspaceList{}
-		err := c.B.Call(ctx, "GET", fmt.Sprintf("/orgs/%v/workspaces?%v", orgId, b.Encode()), c.Key, c.Sess, nil, nil, list)
+		err := c.B.Call(ctx, http.MethodGet, fmt.Sprintf("/orgs/%v/workspaces?%v", orgId, b.Encode()), c.Key, c.Sess, nil, nil, list)
 		ret := make([]interface{}, len(list.Values))
 
 		// pass concrete values as abstract interface into iterator
@@ -300,7 +301,7 @@ func (c Client) NewVolume(ctx context.Context, orgId string, params *trimmer.Vol
 		return nil, trimmer.ENilPointer
 	}
 	v := &trimmer.Volume{}
-	err := c.B.Call(ctx, "POST", fmt.Sprintf("/users/%v/volumes", orgId), c.Key, c.Sess, nil, params, v)
+	err := c.B.Call(ctx, http.MethodPost, fmt.Sprintf("/users/%v/volumes", orgId), c.Key, c.Sess, nil, params, v)
 	return v, err
 }
 
@@ -360,7 +361,7 @@ func (c Client) ListVolumes(ctx context.Context, orgId string, params *trimmer.V
 
 	return &volume.Iter{Iter: trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
 		list := &volumeList{}
-		err := c.B.Call(ctx, "GET", fmt.Sprintf("/orgs/%v/volumes?%v", orgId, b.Encode()), c.Key, c.Sess, nil, nil, list)
+		err := c.B.Call(ctx, http.MethodGet, fmt.Sprintf("/orgs/%v/volumes?%v", orgId, b.Encode()), c.Key, c.Sess, nil, nil, list)
 		ret := make([]interface{}, len(list.Values))
 
 		// pass concrete values as abstract interface into iterator
@@ -377,7 +378,7 @@ func (c Client) GetMember(ctx context.Context, orgId, userId string) (*trimmer.M
 		return nil, trimmer.EIDMissing
 	}
 	v := &trimmer.Member{}
-	err := c.B.Call(ctx, "GET", fmt.Sprintf("/orgs/%v/members/%v", orgId, userId), c.Key, c.Sess, nil, nil, v)
+	err := c.B.Call(ctx, http.MethodGet, fmt.Sprintf("/orgs/%v/members/%v", orgId, userId), c.Key, c.Sess, nil, nil, v)
 	return v, err
 }
 
@@ -386,7 +387,7 @@ func (c Client) NewMember(ctx context.Context, orgId, userId string, params *tri
 		return nil, trimmer.EIDMissing
 	}
 	v := &trimmer.Member{}
-	err := c.B.Call(ctx, "PUT", fmt.Sprintf("/orgs/%v/members/%v", orgId, userId), c.Key, c.Sess, nil, params, v)
+	err := c.B.Call(ctx, http.MethodPut, fmt.Sprintf("/orgs/%v/members/%v", orgId, userId), c.Key, c.Sess, nil, params, v)
 	return v, err
 }
 
@@ -394,7 +395,7 @@ func (c Client) DeleteMember(ctx context.Context, orgId, userId string) error {
 	if orgId == "" || userId == "" {
 		return trimmer.EIDMissing
 	}
-	return c.B.Call(ctx, "DELETE", fmt.Sprintf("/orgs/%v/members/%v", orgId, userId), c.Key, c.Sess, nil, nil, nil)
+	return c.B.Call(ctx, http.MethodDelete, fmt.Sprintf("/orgs/%v/members/%v", orgId, userId), c.Key, c.Sess, nil, nil, nil)
 }
 
 func (c Client) ListMembers(ctx context.Context, orgId string, params *trimmer.MemberListParams) *member.Iter {
@@ -428,7 +429,7 @@ func (c Client) ListMembers(ctx context.Context, orgId string, params *trimmer.M
 
 	return &member.Iter{trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
 		list := &memberList{}
-		err := c.B.Call(ctx, "GET", fmt.Sprintf("/orgs/%v/members?%v", orgId, b.Encode()), c.Key, c.Sess, nil, nil, list)
+		err := c.B.Call(ctx, http.MethodGet, fmt.Sprintf("/orgs/%v/members?%v", orgId, b.Encode()), c.Key, c.Sess, nil, nil, list)
 		ret := make([]interface{}, len(list.Values))
 
 		// pass concrete values as abstract interface into iterator

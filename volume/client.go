@@ -20,6 +20,7 @@ package volume
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	trimmer "trimmer.io/go-trimmer"
@@ -81,7 +82,7 @@ func (c Client) Get(ctx context.Context, volId string, params *trimmer.VolumePar
 		u += fmt.Sprintf("?%v", q.Encode())
 	}
 	v := &trimmer.Volume{}
-	err := c.B.Call(ctx, "GET", u, c.Key, c.Sess, nil, nil, v)
+	err := c.B.Call(ctx, http.MethodGet, u, c.Key, c.Sess, nil, nil, v)
 	return v, err
 }
 
@@ -101,7 +102,7 @@ func (c Client) Update(ctx context.Context, volId string, params *trimmer.Volume
 		u += fmt.Sprintf("?%v", q.Encode())
 	}
 	v := &trimmer.Volume{}
-	err := c.B.Call(ctx, "PATCH", u, c.Key, c.Sess, nil, params, v)
+	err := c.B.Call(ctx, http.MethodPatch, u, c.Key, c.Sess, nil, params, v)
 	return v, err
 }
 
@@ -109,12 +110,11 @@ func (c Client) Delete(ctx context.Context, volId string) error {
 	if volId == "" {
 		return trimmer.EIDMissing
 	}
-	err := c.B.Call(ctx, "DELETE", fmt.Sprintf("/volumes/%v", volId), c.Key, c.Sess, nil, nil, nil)
+	err := c.B.Call(ctx, http.MethodDelete, fmt.Sprintf("/volumes/%v", volId), c.Key, c.Sess, nil, nil, nil)
 	return err
 }
 
 func (c Client) ListReplicas(ctx context.Context, volId string, params *trimmer.MediaListParams) *replica.Iter {
-
 	if volId == "" {
 		return &replica.Iter{Iter: trimmer.GetIterErr(trimmer.EIDMissing)}
 	}
@@ -166,7 +166,7 @@ func (c Client) ListReplicas(ctx context.Context, volId string, params *trimmer.
 
 	return &replica.Iter{Iter: trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
 		list := &replicaList{}
-		err := c.B.Call(ctx, "GET", fmt.Sprintf("/volumes/%v/media?%v", volId, b.Encode()), c.Key, c.Sess, nil, nil, list)
+		err := c.B.Call(ctx, http.MethodGet, fmt.Sprintf("/volumes/%v/media?%v", volId, b.Encode()), c.Key, c.Sess, nil, nil, list)
 		ret := make([]interface{}, len(list.Values))
 
 		// pass concrete values as abstract interface into iterator
@@ -179,7 +179,6 @@ func (c Client) ListReplicas(ctx context.Context, volId string, params *trimmer.
 }
 
 func (c Client) ListMounts(ctx context.Context, volId string, params *trimmer.WorkspaceListParams) *mount.Iter {
-
 	if volId == "" {
 		return &mount.Iter{Iter: trimmer.GetIterErr(trimmer.EIDMissing)}
 	}
@@ -207,7 +206,7 @@ func (c Client) ListMounts(ctx context.Context, volId string, params *trimmer.Wo
 
 	return &mount.Iter{Iter: trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
 		list := &eventList{}
-		err := c.B.Call(ctx, "GET", fmt.Sprintf("/volumes/%v/mounts?%v", volId, b.Encode()), c.Key, c.Sess, nil, nil, list)
+		err := c.B.Call(ctx, http.MethodGet, fmt.Sprintf("/volumes/%v/mounts?%v", volId, b.Encode()), c.Key, c.Sess, nil, nil, list)
 		ret := make([]interface{}, len(list.Values))
 
 		// pass concrete values as abstract interface into iterator
@@ -225,6 +224,6 @@ func (c Client) GetManifest(ctx context.Context, volId string) (*trimmer.VolumeM
 	}
 	u := fmt.Sprintf("/volumes/%v/manifest", volId)
 	v := &trimmer.VolumeManifest{}
-	err := c.B.Call(ctx, "GET", u, c.Key, c.Sess, nil, nil, v)
+	err := c.B.Call(ctx, http.MethodGet, u, c.Key, c.Sess, nil, nil, v)
 	return v, err
 }

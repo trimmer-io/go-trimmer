@@ -21,6 +21,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
@@ -112,7 +113,7 @@ func (c Client) Me(ctx context.Context, params *trimmer.UserParams) (*trimmer.Us
 		q.Add("embed", params.Embed.String())
 		u += fmt.Sprintf("?%v", q.Encode())
 	}
-	err := c.B.Call(ctx, "GET", u, c.Key, c.Sess, nil, nil, v)
+	err := c.B.Call(ctx, http.MethodGet, u, c.Key, c.Sess, nil, nil, v)
 	return v, err
 }
 
@@ -121,7 +122,7 @@ func (c Client) UpdateMe(ctx context.Context, params *trimmer.UserParams) (*trim
 		return nil, trimmer.ENilPointer
 	}
 	v := &trimmer.User{}
-	err := c.B.Call(ctx, "PATCH", "/users/me", c.Key, c.Sess, nil, params, v)
+	err := c.B.Call(ctx, http.MethodPatch, "/users/me", c.Key, c.Sess, nil, params, v)
 	return v, err
 }
 
@@ -149,9 +150,9 @@ func (c Client) Lookup(ctx context.Context, params *trimmer.UserLookupParams) (t
 		if params.Embed.IsValid() {
 			q.Add("embed", params.Embed.String())
 		}
-		err = c.B.Call(ctx, "GET", "/lookup?"+q.Encode(), c.Key, c.Sess, nil, nil, res)
+		err = c.B.Call(ctx, http.MethodGet, "/lookup?"+q.Encode(), c.Key, c.Sess, nil, nil, res)
 	} else {
-		err = c.B.Call(ctx, "POST", "/lookup", c.Key, c.Sess, nil, params, res)
+		err = c.B.Call(ctx, http.MethodPost, "/lookup", c.Key, c.Sess, nil, params, res)
 	}
 	return res.Users.Values, err
 }
@@ -186,7 +187,7 @@ func (c Client) Search(ctx context.Context, params *trimmer.UserSearchParams) *I
 
 	return &Iter{trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
 		res := &searchResult{}
-		err := c.B.Call(ctx, "GET", fmt.Sprintf("/search?%v", b.Encode()), c.Key, c.Sess, nil, nil, res)
+		err := c.B.Call(ctx, http.MethodGet, fmt.Sprintf("/search?%v", b.Encode()), c.Key, c.Sess, nil, nil, res)
 		ret := make([]interface{}, len(res.Users.Values))
 
 		// pass concrete values as abstract interface into iterator
@@ -241,7 +242,7 @@ func (c Client) ListMedia(ctx context.Context, params *trimmer.MediaListParams) 
 
 	return &media.Iter{Iter: trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
 		list := &mediaList{}
-		err := c.B.Call(ctx, "GET", "/users/me/media?"+b.Encode(), c.Key, c.Sess, nil, nil, list)
+		err := c.B.Call(ctx, http.MethodGet, "/users/me/media?"+b.Encode(), c.Key, c.Sess, nil, nil, list)
 		ret := make([]interface{}, len(list.Values))
 
 		// pass concrete values as abstract interface into iterator
@@ -273,7 +274,7 @@ func (c Client) ListOrgs(ctx context.Context, params *trimmer.OrgListParams) *or
 
 	return &org.Iter{trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
 		list := &orgList{}
-		err := c.B.Call(ctx, "GET", "/users/me/orgs?"+b.Encode(), c.Key, c.Sess, nil, nil, list)
+		err := c.B.Call(ctx, http.MethodGet, "/users/me/orgs?"+b.Encode(), c.Key, c.Sess, nil, nil, list)
 		ret := make([]interface{}, len(list.Values))
 
 		// pass concrete values as abstract interface into iterator
@@ -296,7 +297,7 @@ func (c Client) NewWorkspace(ctx context.Context, params *trimmer.WorkspaceParam
 		u += fmt.Sprintf("?%v", q.Encode())
 	}
 	v := &trimmer.Workspace{}
-	err := c.B.Call(ctx, "POST", u, c.Key, c.Sess, nil, params, v)
+	err := c.B.Call(ctx, http.MethodPost, u, c.Key, c.Sess, nil, params, v)
 	return v, err
 }
 
@@ -331,7 +332,7 @@ func (c Client) ListWorkspaces(ctx context.Context, params *trimmer.WorkspaceLis
 
 	return &workspace.Iter{trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
 		list := &workspaceList{}
-		err := c.B.Call(ctx, "GET", "/users/me/workspaces?"+b.Encode(), c.Key, c.Sess, nil, nil, list)
+		err := c.B.Call(ctx, http.MethodGet, "/users/me/workspaces?"+b.Encode(), c.Key, c.Sess, nil, nil, list)
 		ret := make([]interface{}, len(list.Values))
 
 		// pass concrete values as abstract interface into iterator
@@ -354,7 +355,7 @@ func (c Client) NewVolume(ctx context.Context, params *trimmer.VolumeParams) (*t
 		u += fmt.Sprintf("?%v", q.Encode())
 	}
 	v := &trimmer.Volume{}
-	err := c.B.Call(ctx, "POST", u, c.Key, c.Sess, nil, params, v)
+	err := c.B.Call(ctx, http.MethodPost, u, c.Key, c.Sess, nil, params, v)
 	return v, err
 }
 
@@ -410,7 +411,7 @@ func (c Client) ListVolumes(ctx context.Context, params *trimmer.VolumeListParam
 
 	return &volume.Iter{Iter: trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
 		list := &volumeList{}
-		err := c.B.Call(ctx, "GET", "/users/me/volumes?"+b.Encode(), c.Key, c.Sess, nil, nil, list)
+		err := c.B.Call(ctx, http.MethodGet, "/users/me/volumes?"+b.Encode(), c.Key, c.Sess, nil, nil, list)
 		ret := make([]interface{}, len(list.Values))
 
 		// pass concrete values as abstract interface into iterator
@@ -450,7 +451,7 @@ func (c Client) ListEvents(ctx context.Context, params *trimmer.EventListParams)
 
 	return &event.Iter{trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
 		list := &eventList{}
-		err := c.B.Call(ctx, "GET", "/users/me/events?"+b.Encode(), c.Key, c.Sess, nil, nil, list)
+		err := c.B.Call(ctx, http.MethodGet, "/users/me/events?"+b.Encode(), c.Key, c.Sess, nil, nil, list)
 		ret := make([]interface{}, len(list.Values))
 
 		// pass concrete values as abstract interface into iterator

@@ -21,6 +21,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
@@ -156,7 +157,7 @@ func (c Client) Get(ctx context.Context, workId string, params *trimmer.Workspac
 		u += fmt.Sprintf("?%v", q.Encode())
 	}
 	v := &trimmer.Workspace{}
-	err := c.B.Call(ctx, "GET", u, c.Key, c.Sess, nil, nil, v)
+	err := c.B.Call(ctx, http.MethodGet, u, c.Key, c.Sess, nil, nil, v)
 	return v, err
 }
 
@@ -174,7 +175,7 @@ func (c Client) Update(ctx context.Context, workId string, params *trimmer.Works
 		u += fmt.Sprintf("?%v", q.Encode())
 	}
 	v := &trimmer.Workspace{}
-	err := c.B.Call(ctx, "PATCH", u, c.Key, c.Sess, nil, params, v)
+	err := c.B.Call(ctx, http.MethodPatch, u, c.Key, c.Sess, nil, params, v)
 	return v, err
 }
 
@@ -182,7 +183,7 @@ func (c Client) Delete(ctx context.Context, workId string) error {
 	if workId == "" {
 		return trimmer.EIDMissing
 	}
-	return c.B.Call(ctx, "DELETE", fmt.Sprintf("/workspaces/%v", workId), c.Key, c.Sess, nil, nil, nil)
+	return c.B.Call(ctx, http.MethodDelete, fmt.Sprintf("/workspaces/%v", workId), c.Key, c.Sess, nil, nil, nil)
 }
 
 func (c Client) ListAssets(ctx context.Context, workId string, params *trimmer.AssetListParams) *asset.Iter {
@@ -234,7 +235,7 @@ func (c Client) ListAssets(ctx context.Context, workId string, params *trimmer.A
 
 	return &asset.Iter{trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
 		list := &assetList{}
-		err := c.B.Call(ctx, "GET", fmt.Sprintf("/workspaces/%v/assets?%v", workId, b.Encode()), c.Key, c.Sess, nil, nil, list)
+		err := c.B.Call(ctx, http.MethodGet, fmt.Sprintf("/workspaces/%v/assets?%v", workId, b.Encode()), c.Key, c.Sess, nil, nil, list)
 		ret := make([]interface{}, len(list.Values))
 
 		// pass concrete values as abstract interface into iterator
@@ -260,7 +261,7 @@ func (c Client) NewAsset(ctx context.Context, workId string, params *trimmer.Ass
 		u += fmt.Sprintf("?%v", q.Encode())
 	}
 	v := &trimmer.Asset{}
-	err := c.B.Call(ctx, "POST", u, c.Key, c.Sess, nil, params, v)
+	err := c.B.Call(ctx, http.MethodPost, u, c.Key, c.Sess, nil, params, v)
 	return v, err
 }
 
@@ -299,7 +300,7 @@ func (c Client) ListStashes(ctx context.Context, workId string, params *trimmer.
 
 	return &stash.Iter{trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
 		list := &stashList{}
-		err := c.B.Call(ctx, "GET", fmt.Sprintf("/workspaces/%v/stashes?%v", workId, b.Encode()), c.Key, c.Sess, nil, nil, list)
+		err := c.B.Call(ctx, http.MethodGet, fmt.Sprintf("/workspaces/%v/stashes?%v", workId, b.Encode()), c.Key, c.Sess, nil, nil, list)
 		ret := make([]interface{}, len(list.Values))
 
 		// pass concrete values as abstract interface into iterator
@@ -326,7 +327,7 @@ func (c Client) NewStash(ctx context.Context, workId string, params *trimmer.Sta
 		u += fmt.Sprintf("?%v", q.Encode())
 	}
 	v := &trimmer.Stash{}
-	err := c.B.Call(ctx, "POST", u, c.Key, c.Sess, nil, params, v)
+	err := c.B.Call(ctx, http.MethodPost, u, c.Key, c.Sess, nil, params, v)
 	return v, err
 }
 
@@ -376,7 +377,7 @@ func (c Client) ListMedia(ctx context.Context, workId string, params *trimmer.Me
 
 	return &media.Iter{Iter: trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
 		list := &mediaList{}
-		err := c.B.Call(ctx, "GET", fmt.Sprintf("/workspaces/%v/media?%v", workId, b.Encode()), c.Key, c.Sess, nil, nil, list)
+		err := c.B.Call(ctx, http.MethodGet, fmt.Sprintf("/workspaces/%v/media?%v", workId, b.Encode()), c.Key, c.Sess, nil, nil, list)
 		ret := make([]interface{}, len(list.Values))
 
 		// pass concrete values as abstract interface into iterator
@@ -419,7 +420,7 @@ func (c Client) ListEvents(ctx context.Context, workId string, params *trimmer.E
 
 	return &event.Iter{trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
 		list := &eventList{}
-		err := c.B.Call(ctx, "GET", fmt.Sprintf("/workspaces/%v/events?%v", workId, b.Encode()), c.Key, c.Sess, nil, nil, list)
+		err := c.B.Call(ctx, http.MethodGet, fmt.Sprintf("/workspaces/%v/events?%v", workId, b.Encode()), c.Key, c.Sess, nil, nil, list)
 		ret := make([]interface{}, len(list.Values))
 
 		// pass concrete values as abstract interface into iterator
@@ -465,7 +466,7 @@ func (c Client) ListProfiles(ctx context.Context, workId string, params *trimmer
 
 	return &profile.Iter{Iter: trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
 		list := &profileList{}
-		err := c.B.Call(ctx, "GET", fmt.Sprintf("/workspaces/%v/profiles?%s", workId, b.Encode()), c.Key, c.Sess, nil, nil, list)
+		err := c.B.Call(ctx, http.MethodGet, fmt.Sprintf("/workspaces/%v/profiles?%s", workId, b.Encode()), c.Key, c.Sess, nil, nil, list)
 		ret := make([]interface{}, len(list.Values))
 
 		// pass concrete values as abstract interface into iterator
@@ -520,7 +521,7 @@ func (c Client) ListJobs(ctx context.Context, workId string, params *trimmer.Job
 
 	return &job.Iter{trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
 		list := &jobList{}
-		err := c.B.Call(ctx, "GET", fmt.Sprintf("/workspaces/%v/jobs?%v", workId, b.Encode()), c.Key, c.Sess, nil, nil, list)
+		err := c.B.Call(ctx, http.MethodGet, fmt.Sprintf("/workspaces/%v/jobs?%v", workId, b.Encode()), c.Key, c.Sess, nil, nil, list)
 		ret := make([]interface{}, len(list.Values))
 
 		// pass concrete values as abstract interface into iterator
@@ -575,7 +576,7 @@ func (c Client) ListMounts(ctx context.Context, workId string, params *trimmer.M
 
 	return &mount.Iter{Iter: trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
 		list := &mountList{}
-		err := c.B.Call(ctx, "GET", fmt.Sprintf("/workspaces/%v/mounts?%v", workId, b.Encode()), c.Key, c.Sess, nil, nil, list)
+		err := c.B.Call(ctx, http.MethodGet, fmt.Sprintf("/workspaces/%v/mounts?%v", workId, b.Encode()), c.Key, c.Sess, nil, nil, list)
 		ret := make([]interface{}, len(list.Values))
 
 		// pass concrete values as abstract interface into iterator
@@ -597,7 +598,7 @@ func (c Client) MountVolume(ctx context.Context, workId, volId string, params *t
 		q.Add("embed", params.Embed.String())
 		u += fmt.Sprintf("?%v", q.Encode())
 	}
-	return c.B.Call(ctx, "PUT", u, c.Key, c.Sess, nil, params, nil)
+	return c.B.Call(ctx, http.MethodPut, u, c.Key, c.Sess, nil, params, nil)
 }
 
 func (c Client) UnmountVolume(ctx context.Context, workId, volId string) error {
@@ -605,7 +606,7 @@ func (c Client) UnmountVolume(ctx context.Context, workId, volId string) error {
 		return trimmer.EIDMissing
 	}
 	u := fmt.Sprintf("/workspaces/%v/volumes/%v", workId, volId)
-	return c.B.Call(ctx, "DELETE", u, c.Key, c.Sess, nil, nil, nil)
+	return c.B.Call(ctx, http.MethodDelete, u, c.Key, c.Sess, nil, nil, nil)
 }
 
 func (c Client) ScanVolume(ctx context.Context, workId, volId string, params *trimmer.VolumeScanParams) (*trimmer.Job, error) {
@@ -614,7 +615,7 @@ func (c Client) ScanVolume(ctx context.Context, workId, volId string, params *tr
 	}
 	v := &trimmer.Job{}
 	u := fmt.Sprintf("/workspaces/%v/volumes/%v/scan", workId, volId)
-	err := c.B.Call(ctx, "POST", u, c.Key, c.Sess, nil, params, v)
+	err := c.B.Call(ctx, http.MethodPost, u, c.Key, c.Sess, nil, params, v)
 	return v, err
 }
 
@@ -624,7 +625,7 @@ func (c Client) ClearVolume(ctx context.Context, workId, volId string, params *t
 	}
 	v := &trimmer.Job{}
 	u := fmt.Sprintf("/workspaces/%v/volumes/%v/clear", workId, volId)
-	err := c.B.Call(ctx, "POST", u, c.Key, c.Sess, nil, params, v)
+	err := c.B.Call(ctx, http.MethodPost, u, c.Key, c.Sess, nil, params, v)
 	return v, err
 }
 
@@ -633,7 +634,7 @@ func (c Client) GetMember(ctx context.Context, workId, userId string) (*trimmer.
 		return nil, trimmer.EIDMissing
 	}
 	v := &trimmer.Member{}
-	err := c.B.Call(ctx, "GET", fmt.Sprintf("/workspaces/%v/members/%v", workId, userId), c.Key, c.Sess, nil, nil, v)
+	err := c.B.Call(ctx, http.MethodGet, fmt.Sprintf("/workspaces/%v/members/%v", workId, userId), c.Key, c.Sess, nil, nil, v)
 	return v, err
 }
 
@@ -642,7 +643,7 @@ func (c Client) NewMember(ctx context.Context, workId, userId string, params *tr
 		return nil, trimmer.EIDMissing
 	}
 	v := &trimmer.Member{}
-	err := c.B.Call(ctx, "PUT", fmt.Sprintf("/workspaces/%v/members/%v", workId, userId), c.Key, c.Sess, nil, params, v)
+	err := c.B.Call(ctx, http.MethodPut, fmt.Sprintf("/workspaces/%v/members/%v", workId, userId), c.Key, c.Sess, nil, params, v)
 	return v, err
 }
 
@@ -650,7 +651,7 @@ func (c Client) DeleteMember(ctx context.Context, workId, userId string) error {
 	if workId == "" || userId == "" {
 		return trimmer.EIDMissing
 	}
-	return c.B.Call(ctx, "DELETE", fmt.Sprintf("/workspaces/%v/members/%v", workId, userId), c.Key, c.Sess, nil, nil, nil)
+	return c.B.Call(ctx, http.MethodDelete, fmt.Sprintf("/workspaces/%v/members/%v", workId, userId), c.Key, c.Sess, nil, nil, nil)
 }
 
 func (c Client) ListMembers(ctx context.Context, workId string, params *trimmer.MemberListParams) *member.Iter {
@@ -684,7 +685,7 @@ func (c Client) ListMembers(ctx context.Context, workId string, params *trimmer.
 
 	return &member.Iter{trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
 		list := &memberList{}
-		err := c.B.Call(ctx, "GET", fmt.Sprintf("/workspaces/%v/members?%v", workId, b.Encode()), c.Key, c.Sess, nil, nil, list)
+		err := c.B.Call(ctx, http.MethodGet, fmt.Sprintf("/workspaces/%v/members?%v", workId, b.Encode()), c.Key, c.Sess, nil, nil, list)
 		ret := make([]interface{}, len(list.Values))
 
 		// pass concrete values as abstract interface into iterator

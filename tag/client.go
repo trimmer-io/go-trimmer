@@ -20,6 +20,7 @@ package tag
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	trimmer "trimmer.io/go-trimmer"
@@ -79,7 +80,7 @@ func (c Client) Get(ctx context.Context, tagId string, params *trimmer.TagParams
 		u += fmt.Sprintf("?%v", q.Encode())
 	}
 	v := &trimmer.Tag{}
-	err := c.B.Call(ctx, "GET", u, c.Key, c.Sess, nil, nil, v)
+	err := c.B.Call(ctx, http.MethodGet, u, c.Key, c.Sess, nil, nil, v)
 	return v, err
 }
 
@@ -92,7 +93,7 @@ func (c Client) Update(ctx context.Context, tagId string, params *trimmer.TagPar
 	}
 	v := &trimmer.Tag{}
 	u := fmt.Sprintf("/tags/%v", tagId)
-	err := c.B.Call(ctx, "PATCH", u, c.Key, c.Sess, nil, params, v)
+	err := c.B.Call(ctx, http.MethodPatch, u, c.Key, c.Sess, nil, params, v)
 	return v, err
 }
 
@@ -101,7 +102,7 @@ func (c Client) Delete(ctx context.Context, tagId string) error {
 		return trimmer.EIDMissing
 	}
 	u := fmt.Sprintf("/tags/%v", tagId)
-	return c.B.Call(ctx, "DELETE", u, c.Key, c.Sess, nil, nil, nil)
+	return c.B.Call(ctx, http.MethodDelete, u, c.Key, c.Sess, nil, nil, nil)
 }
 
 func (c Client) Reply(ctx context.Context, tagId string, params *trimmer.TagParams) (*trimmer.Tag, error) {
@@ -113,7 +114,7 @@ func (c Client) Reply(ctx context.Context, tagId string, params *trimmer.TagPara
 	}
 	v := &trimmer.Tag{}
 	u := fmt.Sprintf("/tags/%v/replies", tagId)
-	err := c.B.Call(ctx, "POST", u, c.Key, c.Sess, nil, nil, v)
+	err := c.B.Call(ctx, http.MethodPost, u, c.Key, c.Sess, nil, nil, v)
 	return v, err
 }
 
@@ -140,7 +141,7 @@ func (c Client) ListReplies(ctx context.Context, tagId string, params *trimmer.T
 
 	return &Iter{trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
 		list := &tagList{}
-		err := c.B.Call(ctx, "GET", fmt.Sprintf("/tags/%v/replies?%v", tagId, b.Encode()), c.Key, c.Sess, nil, nil, list)
+		err := c.B.Call(ctx, http.MethodGet, fmt.Sprintf("/tags/%v/replies?%v", tagId, b.Encode()), c.Key, c.Sess, nil, nil, list)
 		ret := make([]interface{}, len(list.Values))
 
 		// pass concrete values as abstract interface into iterator

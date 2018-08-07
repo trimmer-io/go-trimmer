@@ -109,7 +109,7 @@ func (c Client) Get(ctx context.Context, stashId string, params *trimmer.StashPa
 		u += fmt.Sprintf("?%v", q.Encode())
 	}
 	v := &trimmer.Stash{}
-	err := c.B.Call(ctx, "GET", u, c.Key, c.Sess, nil, nil, v)
+	err := c.B.Call(ctx, http.MethodGet, u, c.Key, c.Sess, nil, nil, v)
 	return v, err
 }
 
@@ -121,7 +121,7 @@ func (c Client) Update(ctx context.Context, stashId string, params *trimmer.Stas
 		return nil, trimmer.ENilPointer
 	}
 	v := &trimmer.Stash{}
-	err := c.B.Call(ctx, "PATCH", fmt.Sprintf("/stashes/%v", stashId), c.Key, c.Sess, nil, params, v)
+	err := c.B.Call(ctx, http.MethodPatch, fmt.Sprintf("/stashes/%v", stashId), c.Key, c.Sess, nil, params, v)
 	return v, err
 }
 
@@ -129,28 +129,28 @@ func (c Client) Delete(ctx context.Context, stashId string) error {
 	if stashId == "" {
 		return trimmer.EIDMissing
 	}
-	return c.B.Call(ctx, "DELETE", fmt.Sprintf("/stashes/%v", stashId), c.Key, c.Sess, nil, nil, nil)
+	return c.B.Call(ctx, http.MethodDelete, fmt.Sprintf("/stashes/%v", stashId), c.Key, c.Sess, nil, nil, nil)
 }
 
 func (c Client) Watch(ctx context.Context, stashId string) error {
 	if stashId == "" {
 		return trimmer.EIDMissing
 	}
-	return c.B.Call(ctx, "PUT", fmt.Sprintf("/stashes/%v/watch", stashId), c.Key, c.Sess, nil, nil, nil)
+	return c.B.Call(ctx, http.MethodPut, fmt.Sprintf("/stashes/%v/watch", stashId), c.Key, c.Sess, nil, nil, nil)
 }
 
 func (c Client) Unwatch(ctx context.Context, stashId string) error {
 	if stashId == "" {
 		return trimmer.EIDMissing
 	}
-	return c.B.Call(ctx, "DELETE", fmt.Sprintf("/stashes/%v/watch", stashId), c.Key, c.Sess, nil, nil, nil)
+	return c.B.Call(ctx, http.MethodDelete, fmt.Sprintf("/stashes/%v/watch", stashId), c.Key, c.Sess, nil, nil, nil)
 }
 
 func (c Client) IsWatching(ctx context.Context, stashId string) (bool, error) {
 	if stashId == "" {
 		return false, trimmer.EIDMissing
 	}
-	err := c.B.Call(ctx, "GET", fmt.Sprintf("/stashes/%v/watch", stashId), c.Key, c.Sess, nil, nil, nil)
+	err := c.B.Call(ctx, http.MethodGet, fmt.Sprintf("/stashes/%v/watch", stashId), c.Key, c.Sess, nil, nil, nil)
 	switch e := err.(type) {
 	case trimmer.TrimmerError:
 		switch e.StatusCode {
@@ -206,7 +206,7 @@ func (c Client) ListLinks(ctx context.Context, stashId string, params *trimmer.L
 
 	return &link.Iter{trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
 		list := &linkList{}
-		err := c.B.Call(ctx, "GET", fmt.Sprintf("/stashes/%v/links?%v", stashId, b.Encode()), c.Key, c.Sess, nil, nil, list)
+		err := c.B.Call(ctx, http.MethodGet, fmt.Sprintf("/stashes/%v/links?%v", stashId, b.Encode()), c.Key, c.Sess, nil, nil, list)
 		ret := make([]interface{}, len(list.Values))
 
 		// pass concrete values as abstract interface into iterator
@@ -223,7 +223,7 @@ func (c Client) NewLink(ctx context.Context, stashId string, params *trimmer.Lin
 		return nil, trimmer.EIDMissing
 	}
 	v := &trimmer.Link{}
-	err := c.B.Call(ctx, "POST", fmt.Sprintf("/stashes/%v/links", stashId), c.Key, c.Sess, nil, params, v)
+	err := c.B.Call(ctx, http.MethodPost, fmt.Sprintf("/stashes/%v/links", stashId), c.Key, c.Sess, nil, params, v)
 	return v, err
 }
 
@@ -238,7 +238,7 @@ func (c Client) GetLink(ctx context.Context, stashId, linkId string, params *tri
 		u += fmt.Sprintf("?%v", q.Encode())
 	}
 	v := &trimmer.Link{}
-	err := c.B.Call(ctx, "GET", u, c.Key, c.Sess, nil, nil, v)
+	err := c.B.Call(ctx, http.MethodGet, u, c.Key, c.Sess, nil, nil, v)
 	return v, err
 }
 
@@ -250,7 +250,7 @@ func (c Client) UpdateLink(ctx context.Context, stashId, linkId string, params *
 		return nil, trimmer.ENilPointer
 	}
 	v := &trimmer.Link{}
-	err := c.B.Call(ctx, "PATCH", fmt.Sprintf("/stashes/%v/links/%v", stashId, linkId), c.Key, c.Sess, nil, params, v)
+	err := c.B.Call(ctx, http.MethodPatch, fmt.Sprintf("/stashes/%v/links/%v", stashId, linkId), c.Key, c.Sess, nil, params, v)
 	return v, err
 }
 
@@ -258,12 +258,12 @@ func (c Client) DeleteLink(ctx context.Context, stashId, linkId string) error {
 	if stashId == "" || linkId == "" {
 		return trimmer.EIDMissing
 	}
-	return c.B.Call(ctx, "DELETE", fmt.Sprintf("/stashes/%v/links/%v", stashId, linkId), c.Key, c.Sess, nil, nil, nil)
+	return c.B.Call(ctx, http.MethodDelete, fmt.Sprintf("/stashes/%v/links/%v", stashId, linkId), c.Key, c.Sess, nil, nil, nil)
 }
 
 func (c Client) ClearLinks(ctx context.Context, stashId string) error {
 	if stashId == "" {
 		return trimmer.EIDMissing
 	}
-	return c.B.Call(ctx, "DELETE", fmt.Sprintf("/stashes/%v/links", stashId), c.Key, c.Sess, nil, nil, nil)
+	return c.B.Call(ctx, http.MethodDelete, fmt.Sprintf("/stashes/%v/links", stashId), c.Key, c.Sess, nil, nil, nil)
 }

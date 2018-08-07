@@ -20,6 +20,7 @@ package job
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	trimmer "trimmer.io/go-trimmer"
@@ -72,7 +73,7 @@ func (c Client) Get(ctx context.Context, jobId string, params *trimmer.JobParams
 		u += fmt.Sprintf("?%v", q.Encode())
 	}
 	v := &trimmer.Job{}
-	err := c.B.Call(ctx, "GET", u, c.Key, c.Sess, nil, nil, v)
+	err := c.B.Call(ctx, http.MethodGet, u, c.Key, c.Sess, nil, nil, v)
 	return v, err
 }
 
@@ -84,7 +85,7 @@ func (c Client) Update(ctx context.Context, jobId string, params *trimmer.JobPar
 		return nil, trimmer.ENilPointer
 	}
 	v := &trimmer.Job{}
-	err := c.B.Call(ctx, "PATCH", fmt.Sprintf("/jobs/%v", jobId), c.Key, c.Sess, nil, params, v)
+	err := c.B.Call(ctx, http.MethodPatch, fmt.Sprintf("/jobs/%v", jobId), c.Key, c.Sess, nil, params, v)
 	return v, err
 }
 
