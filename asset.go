@@ -97,6 +97,15 @@ type AssetAnalyzeParams struct {
 	Embed   ApiEmbedFlags    `json:"embed,omitempty"`
 }
 
+// AssetCountParams is the set of parameters that can be used
+// to increase public asset counters.
+//
+type AssetCountParams struct {
+	Download bool          `json:"download,omitempty"`
+	View     bool          `json:"view,omitempty"`
+	Embed    ApiEmbedFlags `json:"embed,omitempty"`
+}
+
 // AssetEventType is the list of allowed values for the asset list event field.
 // Allowed values are "created", "updated"
 type AssetListEvent string

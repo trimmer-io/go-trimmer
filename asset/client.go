@@ -22,6 +22,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
@@ -68,8 +69,20 @@ func Delete(ctx context.Context, assetId string) error {
 	return getC().Delete(ctx, assetId)
 }
 
-func Fork(ctx context.Context, assetId string, params *trimmer.AssetForkParams) (*trimmer.Asset, error) {
-	return getC().Fork(ctx, assetId, params)
+func ForkCopy(ctx context.Context, assetId string, params *trimmer.AssetForkParams) (*trimmer.Asset, error) {
+	return getC().ForkCopy(ctx, assetId, params)
+}
+
+func ForkVersion(ctx context.Context, assetId string, params *trimmer.AssetForkParams) (*trimmer.Asset, error) {
+	return getC().ForkVersion(ctx, assetId, params)
+}
+
+func ListVersions(ctx context.Context, assetId string, params *trimmer.AssetListParams) *Iter {
+	return getC().ListVersions(ctx, assetId, params)
+}
+
+func DeleteVersions(ctx context.Context, assetId string) error {
+	return getC().DeleteVersions(ctx, assetId)
 }
 
 func Trash(ctx context.Context, assetId string) (*trimmer.Asset, error) {
@@ -140,6 +153,18 @@ func Trim(ctx context.Context, assetId string, params *trimmer.AssetTrimParams) 
 	return getC().Trim(ctx, assetId, params)
 }
 
+func Count(ctx context.Context, assetId string, params *trimmer.AssetCountParams) (*trimmer.Asset, error) {
+	return getC().Count(ctx, assetId, params)
+}
+
+func Lock(ctx context.Context, assetId string, params *trimmer.EmbedParams) (*trimmer.Asset, error) {
+	return getC().Lock(ctx, assetId, params)
+}
+
+func Unlock(ctx context.Context, assetId string, params *trimmer.EmbedParams) (*trimmer.Asset, error) {
+	return getC().Unlock(ctx, assetId, params)
+}
+
 func (c Client) Get(ctx context.Context, assetId string, params *trimmer.AssetParams) (*trimmer.Asset, error) {
 	if assetId == "" {
 		return nil, trimmer.EIDMissing
@@ -151,7 +176,7 @@ func (c Client) Get(ctx context.Context, assetId string, params *trimmer.AssetPa
 		u += fmt.Sprintf("?%v", q.Encode())
 	}
 	v := &trimmer.Asset{}
-	err := c.B.Call(ctx, "GET", u, c.Key, c.Sess, nil, nil, v)
+	err := c.B.Call(ctx, http.MethodGet, u, c.Key, c.Sess, nil, nil, v)
 	return v, err
 }
 
@@ -163,7 +188,7 @@ func (c Client) Update(ctx context.Context, assetId string, params *trimmer.Meta
 		return nil, trimmer.ENilPointer
 	}
 	v := &trimmer.MetaRevision{}
-	err := c.B.Call(ctx, "PATCH", fmt.Sprintf("/assets/%v/meta", assetId), c.Key, c.Sess, nil, params, v)
+	err := c.B.Call(ctx, http.MethodPatch, fmt.Sprintf("/assets/%v/meta", assetId), c.Key, c.Sess, nil, params, v)
 	return v, err
 }
 
@@ -171,20 +196,8 @@ func (c Client) Delete(ctx context.Context, assetId string) error {
 	if assetId == "" {
 		return trimmer.EIDMissing
 	}
-	err := c.B.Call(ctx, "DELETE", fmt.Sprintf("/assets/%v", assetId), c.Key, c.Sess, nil, nil, nil)
+	err := c.B.Call(ctx, http.MethodDelete, fmt.Sprintf("/assets/%v", assetId), c.Key, c.Sess, nil, nil, nil)
 	return err
-}
-
-func (c Client) Fork(ctx context.Context, assetId string, params *trimmer.AssetForkParams) (*trimmer.Asset, error) {
-	if assetId == "" {
-		return nil, trimmer.EIDMissing
-	}
-	if params == nil {
-		return nil, trimmer.ENilPointer
-	}
-	v := &trimmer.Asset{}
-	err := c.B.Call(ctx, "POST", fmt.Sprintf("/assets/%v/fork", assetId), c.Key, c.Sess, nil, params, v)
-	return v, err
 }
 
 func (c Client) Trash(ctx context.Context, assetId string) (*trimmer.Asset, error) {
@@ -192,7 +205,7 @@ func (c Client) Trash(ctx context.Context, assetId string) (*trimmer.Asset, erro
 		return nil, trimmer.EIDMissing
 	}
 	v := &trimmer.Asset{}
-	err := c.B.Call(ctx, "POST", fmt.Sprintf("/assets/%v/trash", assetId), c.Key, c.Sess, nil, nil, v)
+	err := c.B.Call(ctx, http.MethodPost, fmt.Sprintf("/assets/%v/trash", assetId), c.Key, c.Sess, nil, nil, v)
 	return v, err
 }
 
@@ -201,10 +214,74 @@ func (c Client) Undelete(ctx context.Context, assetId string) (*trimmer.Asset, e
 		return nil, trimmer.EIDMissing
 	}
 	v := &trimmer.Asset{}
-	err := c.B.Call(ctx, "POST", fmt.Sprintf("/assets/%v/undelete", assetId), c.Key, c.Sess, nil, nil, v)
+	err := c.B.Call(ctx, http.MethodPost, fmt.Sprintf("/assets/%v/undelete", assetId), c.Key, c.Sess, nil, nil, v)
 	return v, err
 }
 
+func (c Client) ForkCopy(ctx context.Context, assetId string, params *trimmer.AssetForkParams) (*trimmer.Asset, error) {
+	if assetId == "" {
+		return nil, trimmer.EIDMissing
+	}
+	if params == nil {
+		return nil, trimmer.ENilPointer
+	}
+	v := &trimmer.Asset{}
+	err := c.B.Call(ctx, http.MethodPost, fmt.Sprintf("/assets/%v/fork", assetId), c.Key, c.Sess, nil, params, v)
+	return v, err
+}
+
+func (c Client) ForkVersion(ctx context.Context, assetId string, params *trimmer.AssetForkParams) (*trimmer.Asset, error) {
+	if assetId == "" {
+		return nil, trimmer.EIDMissing
+	}
+	if params == nil {
+		return nil, trimmer.ENilPointer
+	}
+	v := &trimmer.Asset{}
+	err := c.B.Call(ctx, http.MethodPost, fmt.Sprintf("/assets/%v/versions", assetId), c.Key, c.Sess, nil, params, v)
+	return v, err
+}
+
+func (c Client) ListVersions(ctx context.Context, assetId string, params *trimmer.AssetListParams) *Iter {
+	if assetId == "" {
+		return &Iter{trimmer.GetIterErr(trimmer.EIDMissing)}
+	}
+	type assetList struct {
+		trimmer.ListMeta
+		Values trimmer.AssetList `json:"versions"`
+	}
+
+	var q *url.Values
+	var lp *trimmer.ListParams
+	if params != nil {
+		q = &url.Values{}
+		if params.Embed.IsValid() {
+			q.Add("embed", params.Embed.String())
+		}
+		params.AppendTo(q)
+		lp = &params.ListParams
+	}
+
+	return &Iter{trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
+		list := &assetList{}
+		err := c.B.Call(ctx, http.MethodGet, fmt.Sprintf("/assets/%v/versions?%v", assetId, b.Encode()), c.Key, c.Sess, nil, nil, list)
+		ret := make([]interface{}, len(list.Values))
+
+		// pass concrete values as abstract interface into iterator
+		for i, v := range list.Values {
+			ret[i] = v
+		}
+
+		return ret, list.ListMeta, err
+	})}
+}
+
+func (c Client) DeleteVersions(ctx context.Context, assetId string) error {
+	if assetId == "" {
+		return trimmer.EIDMissing
+	}
+	return c.B.Call(ctx, http.MethodDelete, fmt.Sprintf("/assets/%v/versions", assetId), c.Key, c.Sess, nil, nil, nil)
+}
 func (c Client) ListLinks(ctx context.Context, assetId string, params *trimmer.LinkListParams) *link.Iter {
 	if assetId == "" {
 		return &link.Iter{trimmer.GetIterErr(trimmer.EIDMissing)}
@@ -236,7 +313,7 @@ func (c Client) ListLinks(ctx context.Context, assetId string, params *trimmer.L
 
 	return &link.Iter{trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
 		list := &linkList{}
-		err := c.B.Call(ctx, "GET", fmt.Sprintf("/assets/%v/links?%v", assetId, b.Encode()), c.Key, c.Sess, nil, nil, list)
+		err := c.B.Call(ctx, http.MethodGet, fmt.Sprintf("/assets/%v/links?%v", assetId, b.Encode()), c.Key, c.Sess, nil, nil, list)
 		ret := make([]interface{}, len(list.Values))
 
 		// pass concrete values as abstract interface into iterator
@@ -291,7 +368,7 @@ func (c Client) ListTags(ctx context.Context, assetId string, params *trimmer.Ta
 
 	return &tag.Iter{trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
 		list := &tagList{}
-		err := c.B.Call(ctx, "GET", fmt.Sprintf("/assets/%v/tags?%v", assetId, b.Encode()), c.Key, c.Sess, nil, nil, list)
+		err := c.B.Call(ctx, http.MethodGet, fmt.Sprintf("/assets/%v/tags?%v", assetId, b.Encode()), c.Key, c.Sess, nil, nil, list)
 		ret := make([]interface{}, len(list.Values))
 
 		// pass concrete values as abstract interface into iterator
@@ -311,7 +388,7 @@ func (c Client) NewTag(ctx context.Context, assetId string, params *trimmer.TagP
 		return nil, trimmer.ENilPointer
 	}
 	v := &trimmer.Tag{}
-	err := c.B.Call(ctx, "POST", fmt.Sprintf("/assets/%v/tags", assetId), c.Key, c.Sess, nil, params, v)
+	err := c.B.Call(ctx, http.MethodPost, fmt.Sprintf("/assets/%v/tags", assetId), c.Key, c.Sess, nil, params, v)
 	return v, err
 }
 
@@ -364,7 +441,7 @@ func (c Client) ListMedia(ctx context.Context, assetId string, params *trimmer.M
 
 	return &media.Iter{Iter: trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
 		list := &mediaList{}
-		err := c.B.Call(ctx, "GET", fmt.Sprintf("/assets/%v/media?%v", assetId, b.Encode()), c.Key, c.Sess, nil, nil, list)
+		err := c.B.Call(ctx, http.MethodGet, fmt.Sprintf("/assets/%v/media?%v", assetId, b.Encode()), c.Key, c.Sess, nil, nil, list)
 		ret := make([]interface{}, len(list.Values))
 
 		// pass concrete values as abstract interface into iterator
@@ -385,7 +462,7 @@ func (c Client) NewMedia(ctx context.Context, assetId string, params *trimmer.Me
 	}
 	v := &trimmer.Media{}
 	media.StripMetadataUrls(params.Attr)
-	err := c.B.Call(ctx, "POST", fmt.Sprintf("/assets/%v/media", assetId), c.Key, c.Sess, nil, params, v)
+	err := c.B.Call(ctx, http.MethodPost, fmt.Sprintf("/assets/%v/media", assetId), c.Key, c.Sess, nil, params, v)
 	return v, err
 }
 
@@ -415,7 +492,7 @@ func (c Client) GetRevision(ctx context.Context, assetId string, params *trimmer
 		u = fmt.Sprintf("/assets/%v/meta/head", assetId)
 	}
 	v := &trimmer.MetaRevision{}
-	err := c.B.Call(ctx, "GET", u, c.Key, c.Sess, nil, nil, v)
+	err := c.B.Call(ctx, http.MethodGet, u, c.Key, c.Sess, nil, nil, v)
 	return v, err
 }
 
@@ -447,7 +524,7 @@ func (c Client) ListRevisions(ctx context.Context, assetId string, params *trimm
 
 	return &meta.Iter{trimmer.GetIter(lp, q, func(b url.Values) ([]interface{}, trimmer.ListMeta, error) {
 		list := &metaList{}
-		err := c.B.Call(ctx, "GET", fmt.Sprintf("/assets/%v/meta?%v", assetId, b.Encode()), c.Key, c.Sess, nil, nil, list)
+		err := c.B.Call(ctx, http.MethodGet, fmt.Sprintf("/assets/%v/meta?%v", assetId, b.Encode()), c.Key, c.Sess, nil, nil, list)
 		ret := make([]interface{}, len(list.Values))
 
 		// pass concrete values as abstract interface into iterator
@@ -477,7 +554,7 @@ func (c Client) DiffRevisions(ctx context.Context, assetId string, params *trimm
 	h := &trimmer.CallHeaders{
 		Accept: "application/vnd.trimmer.diff",
 	}
-	err := c.B.Call(ctx, "GET", fmt.Sprintf("/assets/%v/meta?diff=%s:%s", assetId, v1, v2), c.Key, c.Sess, h, nil, buf)
+	err := c.B.Call(ctx, http.MethodGet, fmt.Sprintf("/assets/%v/meta?diff=%s:%s", assetId, v1, v2), c.Key, c.Sess, h, nil, buf)
 	return buf.Bytes(), err
 }
 
@@ -490,7 +567,7 @@ func (c Client) NewUpload(ctx context.Context, assetId string, params *trimmer.M
 	}
 	v := &trimmer.Media{}
 	media.StripMetadataUrls(params.Attr)
-	err := c.B.Call(ctx, "POST", fmt.Sprintf("/assets/%v/upload", assetId), c.Key, c.Sess, nil, params, v)
+	err := c.B.Call(ctx, http.MethodPost, fmt.Sprintf("/assets/%v/upload", assetId), c.Key, c.Sess, nil, params, v)
 	return v, err
 }
 
@@ -546,7 +623,7 @@ func (c Client) DeleteMedia(ctx context.Context, assetId, mediaId string) error 
 	if assetId == "" || mediaId == "" {
 		return trimmer.EIDMissing
 	}
-	err := c.B.Call(ctx, "DELETE", fmt.Sprintf("/assets/%v/media/%v", assetId, mediaId), c.Key, c.Sess, nil, nil, nil)
+	err := c.B.Call(ctx, http.MethodDelete, fmt.Sprintf("/assets/%v/media/%v", assetId, mediaId), c.Key, c.Sess, nil, nil, nil)
 	return err
 }
 
@@ -564,7 +641,7 @@ func (c Client) Analyze(ctx context.Context, assetId string, params *trimmer.Ass
 		u += fmt.Sprintf("?%v", q.Encode())
 	}
 	v := &trimmer.Job{}
-	err := c.B.Call(ctx, "POST", u, c.Key, c.Sess, nil, params, v)
+	err := c.B.Call(ctx, http.MethodPost, u, c.Key, c.Sess, nil, params, v)
 	return v, err
 }
 
@@ -582,7 +659,7 @@ func (c Client) Snapshot(ctx context.Context, assetId string, params *trimmer.As
 		u += fmt.Sprintf("?%v", q.Encode())
 	}
 	v := &trimmer.Job{}
-	err := c.B.Call(ctx, "POST", u, c.Key, c.Sess, nil, params, v)
+	err := c.B.Call(ctx, http.MethodPost, u, c.Key, c.Sess, nil, params, v)
 	return v, err
 }
 
@@ -594,7 +671,7 @@ func (c Client) Transcode(ctx context.Context, assetId string, params *trimmer.A
 		return nil, trimmer.EIDMissing
 	}
 	v := &trimmer.Job{}
-	err := c.B.Call(ctx, "POST", fmt.Sprintf("/assets/%v/transcode", assetId), c.Key, c.Sess, nil, params, v)
+	err := c.B.Call(ctx, http.MethodPost, fmt.Sprintf("/assets/%v/transcode", assetId), c.Key, c.Sess, nil, params, v)
 	return v, err
 }
 
@@ -612,6 +689,54 @@ func (c Client) Trim(ctx context.Context, assetId string, params *trimmer.AssetT
 		u += fmt.Sprintf("?%v", q.Encode())
 	}
 	v := &trimmer.Media{}
-	err := c.B.Call(ctx, "PATCH", u, c.Key, c.Sess, nil, params, v)
+	err := c.B.Call(ctx, http.MethodPatch, u, c.Key, c.Sess, nil, params, v)
+	return v, err
+}
+
+func (c Client) Count(ctx context.Context, assetId string, params *trimmer.AssetCountParams) (*trimmer.Asset, error) {
+	if assetId == "" {
+		return nil, trimmer.EIDMissing
+	}
+	if params == nil {
+		return nil, trimmer.ENilPointer
+	}
+	u := fmt.Sprintf("/assets/%v/counts", assetId)
+	if params != nil && params.Embed.IsValid() {
+		q := &url.Values{}
+		q.Add("embed", params.Embed.String())
+		u += fmt.Sprintf("?%v", q.Encode())
+	}
+	v := &trimmer.Asset{}
+	err := c.B.Call(ctx, http.MethodPost, u, c.Key, c.Sess, nil, params, v)
+	return v, err
+}
+
+func (c Client) Lock(ctx context.Context, assetId string, params *trimmer.EmbedParams) (*trimmer.Asset, error) {
+	if assetId == "" {
+		return nil, trimmer.EIDMissing
+	}
+	u := fmt.Sprintf("/assets/%v/lock", assetId)
+	if params != nil && params.Embed.IsValid() {
+		q := &url.Values{}
+		q.Add("embed", params.Embed.String())
+		u += fmt.Sprintf("?%v", q.Encode())
+	}
+	v := &trimmer.Asset{}
+	err := c.B.Call(ctx, http.MethodPost, u, c.Key, c.Sess, nil, nil, v)
+	return v, err
+}
+
+func (c Client) Unlock(ctx context.Context, assetId string, params *trimmer.EmbedParams) (*trimmer.Asset, error) {
+	if assetId == "" {
+		return nil, trimmer.EIDMissing
+	}
+	u := fmt.Sprintf("/assets/%v/lock", assetId)
+	if params != nil && params.Embed.IsValid() {
+		q := &url.Values{}
+		q.Add("embed", params.Embed.String())
+		u += fmt.Sprintf("?%v", q.Encode())
+	}
+	v := &trimmer.Asset{}
+	err := c.B.Call(ctx, http.MethodDelete, u, c.Key, c.Sess, nil, nil, v)
 	return v, err
 }
