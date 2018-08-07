@@ -36,6 +36,9 @@ type LinkListParams struct {
 	AssetId  string        `json:"assetId,omitempty"`
 	StashId  string        `json:"stashId,omitempty"`
 	AuthorId string        `json:"authorId,omitempty"`
+	Version  string        `json:"version,omitempty"`
+	Original bool          `json:"original,omitempty"`
+	Head     bool          `json:"head,omitempty"`
 	Embed    ApiEmbedFlags `json:"embed,omitempty"`
 }
 

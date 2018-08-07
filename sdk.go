@@ -35,10 +35,10 @@ import (
 //
 
 // apiversion is the currently supported API version
-const ApiVersion = "2018-07-04"
+const ApiVersion = "2018-08-04"
 
 // clientversion is the binding version
-const ClientVersion = "1.0.2"
+const ClientVersion = "1.3"
 
 // defaultHTTPTimeout is the default timeout on the http.Client used by the library.
 const defaultHTTPTimeout = 15 * time.Second

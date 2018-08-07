@@ -167,7 +167,6 @@ func (c Client) IsWatching(ctx context.Context, stashId string) (bool, error) {
 }
 
 func (c Client) ListLinks(ctx context.Context, stashId string, params *trimmer.LinkListParams) *link.Iter {
-
 	if stashId == "" {
 		return &link.Iter{trimmer.GetIterErr(trimmer.EIDMissing)}
 	}
@@ -187,6 +186,15 @@ func (c Client) ListLinks(ctx context.Context, stashId string, params *trimmer.L
 		}
 		if params.AuthorId != "" {
 			q.Add("authorId", string(params.AuthorId))
+		}
+		if params.Version != "" {
+			q.Add("version", string(params.Version))
+		}
+		if params.Original {
+			q.Add("original", "true")
+		}
+		if params.Head {
+			q.Add("head", "true")
 		}
 		if params.Embed.IsValid() {
 			q.Add("embed", params.Embed.String())

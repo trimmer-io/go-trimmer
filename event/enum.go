@@ -159,12 +159,18 @@ const (
 	EventKeyStashUpdated    trimmer.EventKey = "stash.updated"
 	EventKeyStashTransfered trimmer.EventKey = "stash.transfered"
 
-	EventKeyAssetCreated  trimmer.EventKey = "asset.created"
-	EventKeyAssetUpdated  trimmer.EventKey = "asset.updated"
-	EventKeyAssetForked   trimmer.EventKey = "asset.forked"
-	EventKeyAssetDeleted  trimmer.EventKey = "asset.deleted"
-	EventKeyAssetLinked   trimmer.EventKey = "asset.linked"
-	EventKeyAssetUnlinked trimmer.EventKey = "asset.unlinked"
+	EventKeyAssetCreated     trimmer.EventKey = "asset.created"
+	EventKeyAssetUpdated     trimmer.EventKey = "asset.updated"
+	EventKeyAssetForked      trimmer.EventKey = "asset.forked"
+	EventKeyAssetDeleted     trimmer.EventKey = "asset.deleted"
+	EventKeyAssetLinked      trimmer.EventKey = "asset.linked"
+	EventKeyAssetLinkUpdated trimmer.EventKey = "asset.linkupdated"
+	EventKeyAssetUnlinked    trimmer.EventKey = "asset.unlinked"
+	EventKeyAssetReviewing   trimmer.EventKey = "asset.reviewing"
+	EventKeyAssetAccepted    trimmer.EventKey = "asset.accepted"
+	EventKeyAssetRejected    trimmer.EventKey = "asset.rejected"
+	EventKeyAssetPublishing  trimmer.EventKey = "asset.publishing"
+	EventKeyAssetPublished   trimmer.EventKey = "asset.published"
 
 	EventKeyTagCreated trimmer.EventKey = "tag.created"
 	EventKeyTagUpdated trimmer.EventKey = "tag.updated"
@@ -367,6 +373,18 @@ func ParseEventKey(s string) trimmer.EventKey {
 		return EventKeyAssetLinked
 	case "asset.unlinked":
 		return EventKeyAssetUnlinked
+	case "asset.linkupdated":
+		return EventKeyAssetLinkUpdated
+	case "asset.reviewing":
+		return EventKeyAssetReviewing
+	case "asset.accepted":
+		return EventKeyAssetAccepted
+	case "asset.rejected":
+		return EventKeyAssetRejected
+	case "asset.publishing":
+		return EventKeyAssetPublishing
+	case "asset.published":
+		return EventKeyAssetPublished
 
 	case "tag.created":
 		return EventKeyTagCreated

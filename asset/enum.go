@@ -21,30 +21,45 @@ import (
 )
 
 const (
-	AssetStateUndefined   trimmer.AssetState = ""
-	AssetStateNomedia     trimmer.AssetState = "nomedia"
-	AssetStateUploading   trimmer.AssetState = "uploading"
-	AssetStateAnalyzing   trimmer.AssetState = "analyzing"
-	AssetStateTranscoding trimmer.AssetState = "transcoding"
-	AssetStateAttention   trimmer.AssetState = "attention"
-	AssetStateReady       trimmer.AssetState = "ready"
-	AssetStateBlocked     trimmer.AssetState = "blocked"
-	AssetStateBanned      trimmer.AssetState = "banned"
-	AssetStateDeleting    trimmer.AssetState = "deleting"
-	AssetStateCleaning    trimmer.AssetState = "cleaning"
-	AssetStateDeleted     trimmer.AssetState = "deleted"
+	AssetStateUndefined  trimmer.AssetState = ""
+	AssetStateEmpty      trimmer.AssetState = "empty"
+	AssetStateUploading  trimmer.AssetState = "uploading"
+	AssetStateProcessing trimmer.AssetState = "processing"
+	AssetStatePublishing trimmer.AssetState = "publishing"
+	AssetStatePublished  trimmer.AssetState = "published"
+	AssetStateReviewing  trimmer.AssetState = "reviewing"
+	AssetStateApproved   trimmer.AssetState = "approved"
+	AssetStateRejected   trimmer.AssetState = "rejected"
+	AssetStateArchived   trimmer.AssetState = "archived"
+	AssetStateAttention  trimmer.AssetState = "attention"
+	AssetStateReady      trimmer.AssetState = "ready"
+	AssetStateBlocked    trimmer.AssetState = "blocked"
+	AssetStateBanned     trimmer.AssetState = "banned"
+	AssetStateDeleting   trimmer.AssetState = "deleting"
+	AssetStateCleaning   trimmer.AssetState = "cleaning"
+	AssetStateDeleted    trimmer.AssetState = "deleted"
 )
 
 func ParseAssetState(s string) trimmer.AssetState {
 	switch s {
-	case "nomedia":
-		return AssetStateNomedia
+	case "empty":
+		return AssetStateEmpty
 	case "uploading":
 		return AssetStateUploading
-	case "analyzing":
-		return AssetStateAnalyzing
-	case "transcoding":
-		return AssetStateTranscoding
+	case "processing":
+		return AssetStateProcessing
+	case "publishing":
+		return AssetStatePublishing
+	case "published":
+		return AssetStatePublished
+	case "reviewing":
+		return AssetStateReviewing
+	case "approved":
+		return AssetStateApproved
+	case "rejected":
+		return AssetStateRejected
+	case "archived":
+		return AssetStateArchived
 	case "attention":
 		return AssetStateAttention
 	case "ready":

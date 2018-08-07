@@ -186,7 +186,6 @@ func (c Client) Delete(ctx context.Context, workId string) error {
 }
 
 func (c Client) ListAssets(ctx context.Context, workId string, params *trimmer.AssetListParams) *asset.Iter {
-
 	if workId == "" {
 		return &asset.Iter{trimmer.GetIterErr(trimmer.EIDMissing)}
 	}
@@ -212,6 +211,15 @@ func (c Client) ListAssets(ctx context.Context, workId string, params *trimmer.A
 		}
 		if params.State != "" {
 			q.Add("state", string(params.State))
+		}
+		if params.Version != "" {
+			q.Add("version", string(params.Version))
+		}
+		if params.Original {
+			q.Add("original", "true")
+		}
+		if params.Head {
+			q.Add("head", "true")
 		}
 		if params.Event != "" {
 			q.Add("event", string(params.Event))
@@ -323,7 +331,6 @@ func (c Client) NewStash(ctx context.Context, workId string, params *trimmer.Sta
 }
 
 func (c Client) ListMedia(ctx context.Context, workId string, params *trimmer.MediaListParams) *media.Iter {
-
 	if workId == "" {
 		return &media.Iter{Iter: trimmer.GetIterErr(trimmer.EIDMissing)}
 	}
@@ -382,7 +389,6 @@ func (c Client) ListMedia(ctx context.Context, workId string, params *trimmer.Me
 }
 
 func (c Client) ListEvents(ctx context.Context, workId string, params *trimmer.EventListParams) *event.Iter {
-
 	if workId == "" {
 		return &event.Iter{trimmer.GetIterErr(trimmer.EIDMissing)}
 	}
@@ -426,7 +432,6 @@ func (c Client) ListEvents(ctx context.Context, workId string, params *trimmer.E
 }
 
 func (c Client) ListProfiles(ctx context.Context, workId string, params *trimmer.ProfileListParams) *profile.Iter {
-
 	if workId == "" {
 		return &profile.Iter{Iter: trimmer.GetIterErr(trimmer.EIDMissing)}
 	}
@@ -473,7 +478,6 @@ func (c Client) ListProfiles(ctx context.Context, workId string, params *trimmer
 }
 
 func (c Client) ListJobs(ctx context.Context, workId string, params *trimmer.JobListParams) *job.Iter {
-
 	if workId == "" {
 		return &job.Iter{trimmer.GetIterErr(trimmer.EIDMissing)}
 	}
@@ -529,7 +533,6 @@ func (c Client) ListJobs(ctx context.Context, workId string, params *trimmer.Job
 }
 
 func (c Client) ListMounts(ctx context.Context, workId string, params *trimmer.MountListParams) *mount.Iter {
-
 	if workId == "" {
 		return &mount.Iter{Iter: trimmer.GetIterErr(trimmer.EIDMissing)}
 	}

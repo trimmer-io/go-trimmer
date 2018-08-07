@@ -51,6 +51,8 @@ type AssetForkParams struct {
 	ExcludeRoles   MediaRoleList `json:"excludeRoles,omitempty"`
 	ExcludeTags    TagLabelList  `json:"excludeTags,omitempty"`
 	MetadataFilter string        `json:"metaFilter,omitempty"`
+	Version        string        `json:"version,omitempty"`
+	Locked         bool          `json:"locked,omitempty"`
 	Embed          ApiEmbedFlags `json:"embed,omitempty"`
 }
 
@@ -106,6 +108,9 @@ type AssetListParams struct {
 	UUID        string         `json:"uuid,omitempty"`
 	AccessClass AccessClass    `json:"access,omitempty"`
 	State       AssetState     `json:"state,omitempty"`
+	Version     string         `json:"version,omitempty"`
+	Original    bool           `json:"original,omitempty"`
+	Head        bool           `json:"head,omitempty"`
 	Event       AssetListEvent `json:"event,omitempty"`
 	Embed       ApiEmbedFlags  `json:"embed,omitempty"`
 }
@@ -114,10 +119,14 @@ type AssetListParams struct {
 type Asset struct {
 	ID          string           `json:"assetId"`
 	State       AssetState       `json:"state"`
+	AccountId   string           `json:"accountId"`
 	WorkspaceId string           `json:"workspaceId"`
 	AuthorId    string           `json:"authorId"`
 	OriginId    string           `json:"originId"`
+	ParentId    string           `json:"parentId"`
 	Uuid        string           `json:"uuid"`
+	Version     string           `json:"version"`
+	Locked      bool             `json:"locked"`
 	AccessClass AccessClass      `json:"access"`
 	CreatedAt   time.Time        `json:"createdAt"`
 	UpdatedAt   time.Time        `json:"updatedAt"`
@@ -129,7 +138,7 @@ type Asset struct {
 	Poster      []*MediaEmbed    `json:"poster"`
 	Thumbnail   []*MediaEmbed    `json:"thumbnail"`
 	Metadata    *MetaDocument    `json:"meta"`
-	Version     string           `json:"version"`
+	Revision    string           `json:"revision"`
 }
 
 // AssetList is representing a slice of Asset structs.
@@ -145,17 +154,21 @@ func (l AssetList) SearchId(id string) (int, *Asset) {
 }
 
 type AssetOrigin struct {
+	AccountId   string `json:"accountId"`
 	WorkspaceId string `json:"workspaceId"`
 	AssetId     string `json:"assetId"`
 }
 
 // AssetStatistics is the resource representing a Asset quota counters.
 type AssetStatistics struct {
-	Links int64 `json:"links"`
-	Forks int64 `json:"forks"`
-	Tags  int64 `json:"tags"`
-	Media int64 `json:"media"`
-	Time  int64 `json:"time"`
-	Size  int64 `json:"size"`
-	Files int64 `json:"files"`
+	Links     int64 `json:"links"`
+	Forks     int64 `json:"forks"`
+	Tags      int64 `json:"tags"`
+	Media     int64 `json:"media"`
+	Time      int64 `json:"time"`
+	Size      int64 `json:"size"`
+	Files     int64 `json:"files"`
+	Versions  int64 `json:"versions"`
+	Views     int64 `json:"views"`
+	Downloads int64 `json:"downloads"`
 }

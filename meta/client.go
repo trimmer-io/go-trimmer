@@ -29,6 +29,6 @@ type Iter struct {
 }
 
 // Version returns the most recent metadata version visited by a call to Next.
-func (i *Iter) Version() *trimmer.MetaVersion {
-	return i.Current().(*trimmer.MetaVersion)
+func (i *Iter) Version() *trimmer.MetaRevision {
+	return i.Current().(*trimmer.MetaRevision)
 }

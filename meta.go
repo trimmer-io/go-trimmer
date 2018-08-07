@@ -26,18 +26,18 @@ import (
 // MetaUpdateParams is the set of parameters that can be used to update asset metadata.
 //
 type MetaUpdateParams struct {
-	Actions MetaValueList `json:"actions"`
-	Version string        `json:"version"`
-	Comment string        `json:"comment"`
-	Embed   ApiEmbedFlags `json:"embed,omitempty"`
+	Actions  MetaValueList `json:"actions"`
+	Revision string        `json:"revision"`
+	Comment  string        `json:"comment"`
+	Embed    ApiEmbedFlags `json:"embed,omitempty"`
 }
 
 // MetaQueryParams is the set of parameters that can be used to query asset metadata.
 //
 type MetaQueryParams struct {
-	Filter  string        `json:"-"`
-	Version string        `json:"-"`
-	Embed   ApiEmbedFlags `json:"embed,omitempty"`
+	Filter   string        `json:"-"`
+	Revision string        `json:"-"`
+	Embed    ApiEmbedFlags `json:"embed,omitempty"`
 }
 
 // MetaDiffParams is the set of parameters that can be used to generate a
@@ -48,7 +48,8 @@ type MetaDiffParams struct {
 	V2 string
 }
 
-// MetaListParams is the set of parameters that can be used when listing assets.
+// MetaListParams is the set of parameters that can be used when listing an
+// assets' metadata revisions.
 type MetaListParams struct {
 	ListParams
 	AuthorId string        `json:"authorId,omitempty"`
@@ -68,8 +69,8 @@ type MetaDocument struct {
 	Models     map[string]interface{} `json:"models"`
 }
 
-type MetaVersion struct {
-	VersionId   string        `json:"versionId"`
+type MetaRevision struct {
+	RevisionId  string        `json:"revisionId"`
 	Hash        string        `json:"hash"`
 	AssetId     string        `json:"assetId"`
 	AuthorId    string        `json:"authorId"`
@@ -85,7 +86,7 @@ type MetaVersion struct {
 	Author      *User         `json:"author"`
 }
 
-type MetaVersionList []*MetaVersion
+type MetaRevisionList []*MetaRevision
 
 func (x *MetaUpdateParams) Add(path MetaPath, value string) {
 	x.Actions = append(x.Actions, MetaValue{

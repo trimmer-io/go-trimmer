@@ -60,7 +60,7 @@ func Get(ctx context.Context, assetId string, params *trimmer.AssetParams) (*tri
 	return getC().Get(ctx, assetId, params)
 }
 
-func Update(ctx context.Context, assetId string, params *trimmer.MetaUpdateParams) (*trimmer.MetaVersion, error) {
+func Update(ctx context.Context, assetId string, params *trimmer.MetaUpdateParams) (*trimmer.MetaRevision, error) {
 	return getC().Update(ctx, assetId, params)
 }
 
@@ -80,16 +80,16 @@ func Undelete(ctx context.Context, assetId string) (*trimmer.Asset, error) {
 	return getC().Undelete(ctx, assetId)
 }
 
-func GetVersion(ctx context.Context, assetId string, params *trimmer.MetaQueryParams) (*trimmer.MetaVersion, error) {
-	return getC().GetVersion(ctx, assetId, params)
+func GetRevision(ctx context.Context, assetId string, params *trimmer.MetaQueryParams) (*trimmer.MetaRevision, error) {
+	return getC().GetRevision(ctx, assetId, params)
 }
 
-func DiffVersions(ctx context.Context, assetId string, params *trimmer.MetaDiffParams) ([]byte, error) {
-	return getC().DiffVersions(ctx, assetId, params)
+func DiffRevisions(ctx context.Context, assetId string, params *trimmer.MetaDiffParams) ([]byte, error) {
+	return getC().DiffRevisions(ctx, assetId, params)
 }
 
-func ListVersions(ctx context.Context, assetId string, params *trimmer.MetaListParams) *meta.Iter {
-	return getC().ListVersions(ctx, assetId, params)
+func ListRevisions(ctx context.Context, assetId string, params *trimmer.MetaListParams) *meta.Iter {
+	return getC().ListRevisions(ctx, assetId, params)
 }
 
 func ListLinks(ctx context.Context, assetId string, params *trimmer.LinkListParams) *link.Iter {
@@ -155,14 +155,14 @@ func (c Client) Get(ctx context.Context, assetId string, params *trimmer.AssetPa
 	return v, err
 }
 
-func (c Client) Update(ctx context.Context, assetId string, params *trimmer.MetaUpdateParams) (*trimmer.MetaVersion, error) {
+func (c Client) Update(ctx context.Context, assetId string, params *trimmer.MetaUpdateParams) (*trimmer.MetaRevision, error) {
 	if assetId == "" {
 		return nil, trimmer.EIDMissing
 	}
 	if params == nil {
 		return nil, trimmer.ENilPointer
 	}
-	v := &trimmer.MetaVersion{}
+	v := &trimmer.MetaRevision{}
 	err := c.B.Call(ctx, "PATCH", fmt.Sprintf("/assets/%v/meta", assetId), c.Key, c.Sess, nil, params, v)
 	return v, err
 }
@@ -249,7 +249,6 @@ func (c Client) ListLinks(ctx context.Context, assetId string, params *trimmer.L
 }
 
 func (c Client) ListTags(ctx context.Context, assetId string, params *trimmer.TagListParams) *tag.Iter {
-
 	if assetId == "" {
 		return &tag.Iter{trimmer.GetIterErr(trimmer.EIDMissing)}
 	}
@@ -390,15 +389,15 @@ func (c Client) NewMedia(ctx context.Context, assetId string, params *trimmer.Me
 	return v, err
 }
 
-func (c Client) GetVersion(ctx context.Context, assetId string, params *trimmer.MetaQueryParams) (*trimmer.MetaVersion, error) {
+func (c Client) GetRevision(ctx context.Context, assetId string, params *trimmer.MetaQueryParams) (*trimmer.MetaRevision, error) {
 	if assetId == "" {
 		return nil, trimmer.EIDMissing
 	}
 	var u string
 	if params != nil {
-		version := "head"
-		if params.Version != "" {
-			version = params.Version
+		revision := "head"
+		if params.Revision != "" {
+			revision = params.Revision
 		}
 		q := &url.Values{}
 		if params.Filter != "" {
@@ -408,26 +407,26 @@ func (c Client) GetVersion(ctx context.Context, assetId string, params *trimmer.
 			q.Add("embed", params.Embed.String())
 		}
 		if len(*q) > 0 {
-			u = fmt.Sprintf("/assets/%v/meta/%v?%s", assetId, version, q.Encode())
+			u = fmt.Sprintf("/assets/%v/meta/%v?%s", assetId, revision, q.Encode())
 		} else {
-			u = fmt.Sprintf("/assets/%v/meta/%v", assetId, version)
+			u = fmt.Sprintf("/assets/%v/meta/%v", assetId, revision)
 		}
 	} else {
 		u = fmt.Sprintf("/assets/%v/meta/head", assetId)
 	}
-	v := &trimmer.MetaVersion{}
+	v := &trimmer.MetaRevision{}
 	err := c.B.Call(ctx, "GET", u, c.Key, c.Sess, nil, nil, v)
 	return v, err
 }
 
-func (c Client) ListVersions(ctx context.Context, assetId string, params *trimmer.MetaListParams) *meta.Iter {
+func (c Client) ListRevisions(ctx context.Context, assetId string, params *trimmer.MetaListParams) *meta.Iter {
 	if assetId == "" {
 		return &meta.Iter{trimmer.GetIterErr(trimmer.EIDMissing)}
 	}
 
 	type metaList struct {
 		trimmer.ListMeta
-		Values trimmer.MetaVersionList `json:"versions"`
+		Values trimmer.MetaRevisionList `json:"revisions"`
 	}
 
 	var q *url.Values
@@ -460,7 +459,7 @@ func (c Client) ListVersions(ctx context.Context, assetId string, params *trimme
 	})}
 }
 
-func (c Client) DiffVersions(ctx context.Context, assetId string, params *trimmer.MetaDiffParams) ([]byte, error) {
+func (c Client) DiffRevisions(ctx context.Context, assetId string, params *trimmer.MetaDiffParams) ([]byte, error) {
 	if assetId == "" {
 		return nil, trimmer.EIDMissing
 	}
