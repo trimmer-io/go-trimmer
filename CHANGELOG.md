@@ -2,6 +2,7 @@
 
   * New API version 2018-08-04
   * new asset states: `published`, `reviewing`, `approved`, `rejected`, `archived`
+  * new asset method `Update` to change asset state during workflows
   * new asset method `Count` to increase view and download counters
   * new asset methods `Lock` and `Unlock` to temporarily prevent editing
   * new `AssetStatistics` fields: versions, views, downloads
@@ -18,6 +19,7 @@
 
 - replaced asset states `analyzing` and `transcoding` with more generic state `processing`
 - renamed method `asset.Fork` to `asset.ForkCopy`
+- renamed method `asset.Update` to `asset.CommitRevision`
 - renamed asset field `version` (hash of metadata revision) to `revision`
 - added new asset field `version` (user-defined string, default HEAD)
 - renamed asset metadata type from `MetaVersion` to `MetaRevision`

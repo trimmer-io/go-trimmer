@@ -61,7 +61,7 @@ func Get(ctx context.Context, assetId string, params *trimmer.AssetParams) (*tri
 	return getC().Get(ctx, assetId, params)
 }
 
-func Update(ctx context.Context, assetId string, params *trimmer.MetaUpdateParams) (*trimmer.MetaRevision, error) {
+func Update(ctx context.Context, assetId string, params *trimmer.AssetUpdateParams) (*trimmer.Asset, error) {
 	return getC().Update(ctx, assetId, params)
 }
 
@@ -103,6 +103,10 @@ func DiffRevisions(ctx context.Context, assetId string, params *trimmer.MetaDiff
 
 func ListRevisions(ctx context.Context, assetId string, params *trimmer.MetaListParams) *meta.Iter {
 	return getC().ListRevisions(ctx, assetId, params)
+}
+
+func CommitRevision(ctx context.Context, assetId string, params *trimmer.MetaUpdateParams) (*trimmer.MetaRevision, error) {
+	return getC().CommitRevision(ctx, assetId, params)
 }
 
 func ListLinks(ctx context.Context, assetId string, params *trimmer.LinkListParams) *link.Iter {
@@ -180,15 +184,16 @@ func (c Client) Get(ctx context.Context, assetId string, params *trimmer.AssetPa
 	return v, err
 }
 
-func (c Client) Update(ctx context.Context, assetId string, params *trimmer.MetaUpdateParams) (*trimmer.MetaRevision, error) {
+func (c Client) Update(ctx context.Context, assetId string, params *trimmer.AssetUpdateParams) (*trimmer.Asset, error) {
 	if assetId == "" {
 		return nil, trimmer.EIDMissing
 	}
 	if params == nil {
 		return nil, trimmer.ENilPointer
 	}
-	v := &trimmer.MetaRevision{}
-	err := c.B.Call(ctx, http.MethodPatch, fmt.Sprintf("/assets/%v/meta", assetId), c.Key, c.Sess, nil, params, v)
+	v := &trimmer.Asset{}
+	u := fmt.Sprintf("/assets/%v", assetId)
+	err := c.B.Call(ctx, http.MethodPatch, u, c.Key, c.Sess, nil, params, v)
 	return v, err
 }
 
@@ -556,6 +561,18 @@ func (c Client) DiffRevisions(ctx context.Context, assetId string, params *trimm
 	}
 	err := c.B.Call(ctx, http.MethodGet, fmt.Sprintf("/assets/%v/meta?diff=%s:%s", assetId, v1, v2), c.Key, c.Sess, h, nil, buf)
 	return buf.Bytes(), err
+}
+
+func (c Client) CommitRevision(ctx context.Context, assetId string, params *trimmer.MetaUpdateParams) (*trimmer.MetaRevision, error) {
+	if assetId == "" {
+		return nil, trimmer.EIDMissing
+	}
+	if params == nil {
+		return nil, trimmer.ENilPointer
+	}
+	v := &trimmer.MetaRevision{}
+	err := c.B.Call(ctx, http.MethodPatch, fmt.Sprintf("/assets/%v/meta", assetId), c.Key, c.Sess, nil, params, v)
+	return v, err
 }
 
 func (c Client) NewUpload(ctx context.Context, assetId string, params *trimmer.MediaParams) (*trimmer.Media, error) {

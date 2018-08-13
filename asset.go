@@ -40,6 +40,13 @@ type AssetParams struct {
 	Embed       ApiEmbedFlags `json:"embed,omitempty"`
 }
 
+// AssetUpdateParams is the set of parameters that can be used to create an asset.
+//
+type AssetUpdateParams struct {
+	State AssetState    `json:"state"`
+	Embed ApiEmbedFlags `json:"embed,omitempty"`
+}
+
 // AssetActivationParams is the set of parameters that can be used
 // to activate a asset subscription.
 //
